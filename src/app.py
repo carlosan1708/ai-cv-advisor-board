@@ -7,9 +7,11 @@ from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmb
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
+import chromadb
+from chromadb.config import Settings
 from langchain_community.tools import DuckDuckGoSearchRun
 from langgraph.graph import StateGraph, END
-from typing import TypedDict, Annotated, Sequence, List
+from typing import TypedDict, Annotated
 import operator
 
 # --- Initial Setup ---
@@ -18,9 +20,23 @@ load_dotenv()
 
 # Initialize session state variables
 if "google_api_key" not in st.session_state:
-    st.session_state.google_api_key = os.getenv("GOOGLE_API_KEY", "")
+    # Start with Environment Variables (Local dev)
+    api_key = os.getenv("GOOGLE_API_KEY", "")
+    
+    # Only check st.secrets if we are NOT running locally OR if the secrets file exists
+    # This prevents the 'No secrets found' FileNotFoundError crash on local machines
+    is_cloud = os.getenv("STREAMLIT_RUNTIME_SENTRY_DSN") is not None or os.path.exists(".streamlit/secrets.toml")
+    
+    if is_cloud:
+        try:
+            if "GOOGLE_API_KEY" in st.secrets:
+                api_key = st.secrets["GOOGLE_API_KEY"]
+        except Exception:
+            pass
+        
+    st.session_state.google_api_key = api_key
 if "selected_model" not in st.session_state:
-    st.session_state.selected_model = "gemini-2.0-flash-exp"
+    st.session_state.selected_model = "gemini-3-flash-preview"
 if "custom_agents" not in st.session_state:
     st.session_state.custom_agents = []
 
@@ -43,33 +59,75 @@ class AgentState(TypedDict):
 with st.sidebar:
     st.title("⚙️ Configuration")
     
-    # Persona Set Selection
+    # Persona Selection
     st.subheader("👤 Council Personas")
     
     # Use absolute path for personas directory
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     persona_dir = os.path.join(base_dir, "personas")
     
-    persona_files = {
-        "General Career": os.path.join(persona_dir, "general.yaml"),
-        "IT Specialist": os.path.join(persona_dir, "it_specialist.yaml")
-    }
-    selected_set = st.selectbox("Select Persona Set", options=list(persona_files.keys()))
-    
-    # Load YAML if set changed or not initialized
-    if "current_persona_set" not in st.session_state or st.session_state.current_persona_set != selected_set:
-        try:
-            with open(persona_files[selected_set], 'r', encoding='utf-8') as f:
-                persona_data = yaml.safe_load(f)
-                st.session_state.custom_agents = persona_data
-                st.session_state.current_persona_set = selected_set
-        except Exception as e:
-            st.error(f"Error loading personas: {e}")
+    # Load all personas from all YAML files in the directory
+    all_available_personas = {}
+    if os.path.exists(persona_dir):
+        for filename in os.listdir(persona_dir):
+            if filename.endswith(".yaml") or filename.endswith(".yml"):
+                try:
+                    with open(os.path.join(persona_dir, filename), 'r', encoding='utf-8') as f:
+                        personas = yaml.safe_load(f)
+                        if personas:
+                            for p in personas:
+                                # Key is "Name (File)" to avoid collisions
+                                display_name = f"{p['name']} ({filename.split('.')[0]})"
+                                all_available_personas[display_name] = p
+                except Exception as e:
+                    st.error(f"Error loading {filename}: {e}")
+
+    # Initialize selected_personas in session state
+    if "selected_personas" not in st.session_state:
+        st.session_state.selected_personas = []
+
+    selected_names = st.multiselect(
+        "Pick and choose personas",
+        options=list(all_available_personas.keys()),
+        default=st.session_state.selected_personas
+    )
+
+    # If selection changed, update custom_agents
+    if selected_names != st.session_state.selected_personas:
+        st.session_state.selected_personas = selected_names
+        # Filter out automatically added agents that are no longer selected,
+        # but keep manually added ones (those not in all_available_personas)
+        # OR simpler: just rebuild the list from selection + any manually added ones.
+        
+        # Identify manually added agents (they don't have a "(file)" suffix in their name as we defined it)
+        manual_agents = [a for a in st.session_state.custom_agents 
+                         if not any(a['name'] == p['name'] for p in all_available_personas.values())]
+        
+        new_custom_agents = []
+        # Add selected personas
+        for name in selected_names:
+            new_custom_agents.append(all_available_personas[name].copy())
+        
+        # Add manual agents back
+        new_custom_agents.extend(manual_agents)
+        st.session_state.custom_agents = new_custom_agents
+        st.rerun()
 
     st.divider()
     
-    # Load default from .env if available
+    # Load default from Env first
     default_api_key = os.getenv("GOOGLE_API_KEY", "")
+    
+    # Only check st.secrets if we are NOT running locally OR if the secrets file exists
+    is_cloud = os.getenv("STREAMLIT_RUNTIME_SENTRY_DSN") is not None or os.path.exists(".streamlit/secrets.toml")
+    
+    if is_cloud:
+        try:
+            if "GOOGLE_API_KEY" in st.secrets:
+                default_api_key = st.secrets["GOOGLE_API_KEY"]
+        except Exception:
+            pass
+        
     google_api_key = st.text_input("Google API Key", type="password", value=default_api_key)
     
     col_save, col_reset = st.columns(2)
@@ -101,12 +159,20 @@ with st.sidebar:
                 st.session_state.available_models = sorted(models)
             except Exception as e:
                 st.error(f"Error fetching models: {e}")
-                st.session_state.available_models = ["gemini-2.0-flash-exp", "gemini-1.5-flash"]
+                st.session_state.available_models = [
+                    "gemini-3-flash-preview",
+                    "gemini-2.5-flash",
+                    "gemini-2.0-flash-exp", 
+                    "gemini-1.5-flash"
+                ]
         
-        # Try to default to Gemini 2.0 Flash
-        default_model = "gemini-2.0-flash-exp"
-        if default_model not in st.session_state.available_models:
-            default_model = "gemini-1.5-flash" if "gemini-1.5-flash" in st.session_state.available_models else st.session_state.available_models[0]
+        # Priority order for default model
+        priority_models = ["gemini-3-flash-preview", "gemini-2.5-flash", "gemini-2.0-flash-exp", "gemini-1.5-flash"]
+        default_model = st.session_state.available_models[0]
+        for pm in priority_models:
+            if pm in st.session_state.available_models:
+                default_model = pm
+                break
 
         selected_model = st.selectbox(
             "Select Gemini Model", 
@@ -115,7 +181,7 @@ with st.sidebar:
         )
         st.session_state.selected_model = selected_model
     else:
-        st.session_state.selected_model = "gemini-2.0-flash-exp"
+        st.session_state.selected_model = "gemini-3-flash-preview"
 
     st.divider()
     st.title("🤖 Custom Agents")
@@ -124,17 +190,22 @@ with st.sidebar:
     # Use a copy of the list to avoid mutation issues during iteration
     updated_agents = []
     for i, agent in enumerate(st.session_state.custom_agents):
-        # Unique keys based on persona set to avoid widget stale values
-        set_prefix = st.session_state.get("current_persona_set", "General").replace(" ", "_")
+        # Unique keys based on name to avoid widget stale values
+        safe_name = agent['name'].replace(" ", "_")
         with st.expander(f"Agent {i+1}: {agent['name']}", expanded=False):
-            name = st.text_input(f"Name", value=agent['name'], key=f"{set_prefix}_name_{i}")
-            prompt = st.text_area(f"System Prompt", value=agent['prompt'], key=f"{set_prefix}_prompt_{i}")
-            if st.button(f"Remove Agent {i+1}", key=f"{set_prefix}_remove_{i}"):
+            name = st.text_input(f"Name", value=agent['name'], key=f"agent_name_{safe_name}_{i}")
+            prompt = st.text_area(f"System Prompt", value=agent['prompt'], key=f"agent_prompt_{safe_name}_{i}")
+            if st.button(f"Remove Agent {i+1}", key=f"agent_remove_{safe_name}_{i}"):
                 st.session_state.custom_agents.pop(i)
+                # If it was a selected persona, we should remove it from selected_personas too
+                for disp_name, p_data in all_available_personas.items():
+                    if p_data['name'] == agent['name']:
+                        if disp_name in st.session_state.selected_personas:
+                            st.session_state.selected_personas.remove(disp_name)
                 st.rerun()
             updated_agents.append({"name": name, "prompt": prompt})
     
-    # Only update the list of agents, don't trigger state mismatch if we just loaded from YAML
+    # Only update the list of agents
     st.session_state.custom_agents = updated_agents
 
     if st.button("➕ Add Specialist Agent"):
@@ -172,12 +243,29 @@ with st.sidebar:
                 splits = text_splitter.split_documents(docs)
                 
                 embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key=st.session_state.google_api_key)
-                vectorstore = Chroma.from_documents(
-                    documents=splits, 
-                    embedding=embeddings, 
-                    persist_directory="./chroma_db",
-                    collection_name="reference_cvs"
-                )
+                
+                # Check for ChromaDB host from env
+                chroma_host = os.getenv("CHROMA_HOST", "localhost")
+                chroma_port = os.getenv("CHROMA_PORT", "8000")
+                
+                try:
+                    # Try to connect to remote ChromaDB instance
+                    client = chromadb.HttpClient(host=chroma_host, port=chroma_port)
+                    vectorstore = Chroma.from_documents(
+                        documents=splits,
+                        embedding=embeddings,
+                        collection_name="reference_cvs",
+                        client=client
+                    )
+                except Exception as e:
+                    st.warning(f"Could not connect to remote ChromaDB at {chroma_host}:{chroma_port}. Falling back to local storage. Error: {e}")
+                    vectorstore = Chroma.from_documents(
+                        documents=splits, 
+                        embedding=embeddings, 
+                        persist_directory="./chroma_db",
+                        collection_name="reference_cvs"
+                    )
+                
                 st.session_state.vectorstore = vectorstore
                 st.success(f"Indexed {len(reference_files)} reference documents.")
 

@@ -22,3 +22,13 @@ services:
       - "5050:80"
     depends_on:
       - db
+
+  chroma:
+    image: chromadb/chroma:latest
+    volumes:
+      - ./chroma_data:/chroma/chroma
+    ports:
+      - "8000:8000"
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma/chroma
