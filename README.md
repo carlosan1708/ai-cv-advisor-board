@@ -89,13 +89,14 @@ The application will be available at `http://localhost:8501`.
 
 ## ✨ Features
 
-- **Dynamic Configuration**: Sidebar panel to manage Google API Key and model selection.
-- **Multi-Agent Collaboration**: Orchestrated by **LangGraph** for structured AI deliberation.
-- **Reference RAG Agent**: Upload successful CV examples (PDF/TXT) to guide the RAG agent in identifying missing patterns.
-- **Web Search Agent**: Real-time DuckDuckGo searches for modern best practices and market trends for the candidate's specific role.
-- **Custom Specialist Agents**: Load pre-defined persona sets (General Career, IT Specialist) from YAML or dynamically create new specialist personas in the UI.
-- **Council Recommender**: Synthesizes findings from all specialists into a final, actionable recommendation.
-- **Interactive UI**: Clean interface built with Streamlit for seamless CV analysis and detailed report viewing.
+- **Step-by-Step Wizard**: A guided 5-step process (Setup, Upload, Job Context, Team Assembly, Results) for a seamless user experience.
+- **Dynamic Configuration**: Integrated setup for Google API Key and model selection directly within the onboarding flow.
+- **Multi-Agent Collaboration**: Powered by **CrewAI** (formerly orchestrated by LangGraph) for sophisticated AI deliberation.
+- **Optional Job Targeting**: Analyze your CV against a specific LinkedIn job URL or a manual description, or skip for a general professional review.
+- **Reference RAG Agent**: (Optional) Upload successful CV examples to guide the AI in identifying winning patterns.
+- **Custom Specialist Council**: Choose from pre-defined personas (Technical Recruiter, Soft Skills Coach, etc.) or create your own custom specialists.
+- **Rich Markdown Reports**: Get beautifully formatted, actionable feedback including Executive Summaries, Key Strengths, and Next Steps.
+- **Interactive UI**: Modern, centered interface built with Streamlit with clear progress tracking and navigation.
 
 ## 💡 Troubleshooting
 
