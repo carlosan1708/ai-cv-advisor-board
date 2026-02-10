@@ -1,4 +1,4 @@
-# Contributing to AI SQL Agent
+# Contributing to AI CV Advisor Board
 
 Thank you for your interest in contributing to this project! We welcome contributions from the community to help improve this tool.
 
