@@ -120,16 +120,16 @@ def create_crew(
             Do NOT write the CV itself here.
 
             Include:
-            - Executive Summary of the Board's findings.
-            - Specialist Summaries (brief critique from each board member).
-            - Top 3 Critical Missing Elements that are hurting the candidate's chances.
-            - Strategic Advice on how to reframe experience for the target role.
-            - Actionable Next Steps.
+            - Executive Summary of the Board's findings: A detailed, multi-paragraph overview of the board's collective thoughts.
+            - Specialist Summaries: For each board member, provide a substantial paragraph explaining their specific critique and perspective.
+            - Top 3 Critical Missing Elements: Detailed explanation for each element and why it's hurting the candidate's chances.
+            - Strategic Advice: In-depth guidance on how to reframe experience for the target role.
+            - Actionable Next Steps: Concrete, detailed suggestions.
 
-            Use rich markdown formatting. Use H2 and H3 headers, bullet points, and bold text for emphasis.
+            CRITICAL: Use more text and less structural markdown. Avoid excessive headers or short bullet points that look like the 'Minimal Changes' report. Write in a professional, conversational tone with full, rich paragraphs. Focus on depth of analysis rather than just listing points.
         """
         ),
-        expected_output="A comprehensive board recommendation report focusing on critique and strategic advice.",
+        expected_output="A comprehensive, text-rich board recommendation report focusing on in-depth critique and strategic advice.",
         agent=board_head,
         context=tasks,
     )
@@ -193,6 +193,8 @@ def create_crew(
             CRITICAL: You must NOT omit any professional experience, education, or core skills from the original CV.
             Your task is to REWRITE and REFRAME them for higher impact, not to summarize or remove them.
             Ensure the output is comprehensive and matches the professional depth of the original.
+            If the original CV was 2 pages, the result should also be approximately 2 pages worth of content.
+            DO NOT SUMMARIZE OR SHORTEN.
         """
         ),
         llm=crew_model,
@@ -211,31 +213,33 @@ def create_crew(
                [Email] | [Phone] | [LinkedIn] | [Location]
 
                ## Professional Summary
-               [Refined summary based on board feedback]
+               [Refined summary based on board feedback - make it substantial, at least 4-5 sentences]
 
                ## Key Expertise
-               [Comprehensive list of skills, updated with keywords]
+               [Comprehensive list of skills, updated with keywords. Be exhaustive.]
 
                ## Professional Experience
-               [For EVERY job in the original CV:]
+               [For EVERY job in the original CV, preserve all bullet points but optimize them.
+               Expand on descriptions using board feedback. Ensure each role has substantial detail.]
                ### [Job Title] @ [Company Name]
                *[Dates]*
                - [Achievement 1 with board-suggested metrics]
                - [Achievement 2 with board-suggested metrics]
-               - [Preserve all other relevant bullets, but rewrite for impact]
+               - [Preserve and optimize ALL other bullets from the original CV]
 
                ## Education
-               [Preserve ALL education details]
+               [Preserve ALL education details in full]
 
                ## Certifications & Projects
-               [Preserve ALL certifications and key projects]
+               [Preserve ALL certifications and key projects with their full original descriptions]
 
-            Ensure the CV is comprehensive. DO NOT cut sections to make it shorter.
-            Focus on QUALITY and IMPACT of the phrasing while retaining ALL original info.
+            CRITICAL: Ensure the CV is EXHAUSTIVE and COMPREHENSIVE. DO NOT cut sections or bullet points to make it shorter.
+            The goal is a high-impact, full-length professional document that outshines the original.
         """
         ),
         expected_output=(
-            "A comprehensive, perfectly formatted, and professional CV in Markdown that " "retains all original data points."
+            "A comprehensive, full-length, perfectly formatted, and professional CV in Markdown that "
+            "retains and expands upon all original data points."
         ),
         agent=cv_reformatter,
         context=[final_task],

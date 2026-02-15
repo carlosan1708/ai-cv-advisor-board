@@ -13,3 +13,4 @@ __pycache__/
 init.sql
 database/
 .env
+logs/

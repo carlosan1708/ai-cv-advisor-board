@@ -143,6 +143,11 @@ def _render_model_selection(config, available_models, custom_key_input, system_k
             on_change=on_model_change,
             disabled=lock_it,
         )
+        if lock_it:
+            st.info(
+                "💡 Note: The selected model is efficient but not the most powerful, as this service "
+                "is self-financed. To use more advanced models, please provide your own API key above."
+            )
     elif config.api_key:
         st.error("Invalid API Key or no models available.")
 
