@@ -1,9 +1,9 @@
 """Module for rendering the CV upload step in the application."""
 
 import streamlit as st
-from pypdf import PdfReader
 
-from session_utils import next_step, prev_step
+from services.cv_service import CVService
+from state_manager import state_manager
 
 
 def render_upload_step():
@@ -17,25 +17,23 @@ def render_upload_step():
         if uploaded_file:
             if uploaded_file.name != st.session_state.cv_filename:
                 with st.spinner("Reading file..."):
-                    if uploaded_file.name.endswith(".pdf"):
-                        reader = PdfReader(uploaded_file)
-                        content = ""
-                        for page in reader.pages:
-                            content += page.extract_text()
+                    try:
+                        content = CVService.parse_cv_file(uploaded_file.read(), uploaded_file.name)
                         st.session_state.cv_content = content
-                    else:
-                        st.session_state.cv_content = uploaded_file.read().decode("utf-8")
-                    st.session_state.cv_filename = uploaded_file.name
+                        st.session_state.cv_filename = uploaded_file.name
+                    except Exception as e:
+                        st.error(f"Error reading file: {str(e)}")
 
-            st.success(f"✅ Successfully loaded: **{st.session_state.cv_filename}**")
-            st.markdown(f"**Preview:** {st.session_state.cv_content[:200]}...")
+            if st.session_state.cv_content:
+                st.success(f"✅ Successfully loaded: **{st.session_state.cv_filename}**")
+                st.markdown(f"**Preview:** {st.session_state.cv_content[:200]}...")
 
     st.write("---")
     col1, col2 = st.columns([1, 1])
     with col1:
         if st.button("⬅️ Back", use_container_width=True):
-            prev_step()
+            state_manager.prev_step()
     with col2:
         disabled = not st.session_state.cv_content
         if st.button("Next: Job Target ➡️", type="primary", disabled=disabled, use_container_width=True):
-            next_step()
+            state_manager.next_step()

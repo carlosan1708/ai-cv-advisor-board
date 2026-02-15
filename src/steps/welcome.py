@@ -2,7 +2,7 @@
 
 import streamlit as st
 
-from session_utils import next_step
+from state_manager import state_manager
 
 
 def render_welcome_step():
@@ -40,4 +40,4 @@ def render_welcome_step():
     st.info("💡 **How it works:** Configuration -> Upload -> Job Context -> Team Selection -> expert Results.")
 
     if st.button("Get Started ➡️", use_container_width=True, type="primary"):
-        next_step()
+        state_manager.next_step()

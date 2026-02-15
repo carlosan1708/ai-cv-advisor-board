@@ -3,7 +3,7 @@
 import streamlit as st
 from dotenv import load_dotenv
 
-from session_utils import init_session_state
+from state_manager import state_manager
 from steps.config import render_config_step
 from steps.job import render_job_step
 from steps.personalize import render_personalize_step
@@ -24,26 +24,23 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# --- Initialize State ---
-init_session_state()
-
 # --- Main UI ---
 render_header()
-if 0 < st.session_state.step <= 5:
-    render_stepper(st.session_state.step)
+if 0 < state_manager.step <= 5:
+    render_stepper(state_manager.step)
 
 # --- Routing ---
-if st.session_state.step == 0:
+if state_manager.step == 0:
     render_welcome_step()
-elif st.session_state.step == 1:
+elif state_manager.step == 1:
     render_config_step()
-elif st.session_state.step == 2:
+elif state_manager.step == 2:
     render_upload_step()
-elif st.session_state.step == 3:
+elif state_manager.step == 3:
     render_job_step()
-elif st.session_state.step == 4:
+elif state_manager.step == 4:
     render_team_step()
-elif st.session_state.step == 5:
+elif state_manager.step == 5:
     render_results_step()
-elif st.session_state.step == 6:
+elif state_manager.step == 6:
     render_personalize_step()

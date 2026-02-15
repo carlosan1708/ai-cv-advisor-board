@@ -136,7 +136,63 @@ def create_crew(
     agents.append(board_head)
     tasks.append(final_task)
 
-    # 5. CV Reformatter Agent
+    # 5. Minimal Changes Agent
+    minimal_changes_agent = Agent(
+        role="Targeted Resume Optimizer",
+        goal=(
+            "Identify ONLY the specific sections, phrases, or bullet points that need to be "
+            "added, removed, or tweaked to align with the job description."
+        ),
+        backstory=textwrap.dedent(
+            """
+            You are a Resume Surgeon. You do not rewrite the whole resume. You only touch what is necessary.
+            Your job is to provide a list of specific, actionable changes to the existing CV to make it pass
+            ATS filters and appeal to the hiring manager for THIS specific job.
+
+            You focus on:
+            1. Keywords to add (and where).
+            2. Bullet points to rephrase for impact.
+            3. Irrelevant information to remove.
+        """
+        ),
+        llm=crew_model,
+        verbose=True,
+        allow_delegation=False,
+    )
+
+    minimal_changes_task = Task(
+        description=textwrap.dedent(
+            f"""
+            Analyze the original CV: {cv_content[:4000]}
+            Against the Job Description: {job_description}
+
+            Provide a list of "Minimal Changes" to optimize this CV.
+            Output must be a markdown list with the following sections:
+
+            ## 1. Keywords to Add
+            - [Keyword] (Suggested location: [Section Name])
+
+            ## 2. Phrasing Tweaks
+            - **Original:** "[Original Text]"
+            - **Suggested:** "[New Text]"
+            - **Reason:** [Brief explanation]
+
+            ## 3. Items to Remove
+            - [Text/Section] (Reason: [Brief explanation])
+
+            ## 4. New Bullet Points to Add
+            - [New Bullet Point] (Location: [Job/Section])
+
+            Do NOT rewrite the whole CV. Only list the changes.
+        """
+        ),
+        expected_output="A structured markdown list of specific, minimal changes to optimize the CV.",
+        agent=minimal_changes_agent,
+    )
+    agents.append(minimal_changes_agent)
+    tasks.append(minimal_changes_task)
+
+    # 6. Exhaustive Rewrite Agent (Full CV Reformatter)
     cv_reformatter = Agent(
         role="Expert CV Reformatter",
         goal=(
@@ -164,7 +220,7 @@ def create_crew(
             f"""
             1. Review the FULL original CV: {cv_content[:4000]}
             2. Consider these additional details provided by the candidate: {user_answers}
-            3. Review the Board's recommendations provided in the previous tasks.
+            3. Review the Board's recommendations provided in previous tasks.
             4. Rewrite the FULL CV in Markdown using the following structure:
                # [Full Name]
                [Email] | [Phone] | [LinkedIn] | [Location]

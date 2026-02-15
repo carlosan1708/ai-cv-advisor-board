@@ -1,110 +1,74 @@
-"""Module for rendering the team assembly step in the application."""
+"""Module for rendering the team selection step in the application."""
 
 import streamlit as st
 
-from persona_utils import load_personas
-from session_utils import next_step, prev_step
+from services.persona_service import PersonaService
+from state_manager import state_manager
 
 
 def _handle_custom_specialist():
-    """Handle UI for adding a custom specialist agent."""
-    with st.expander("🛠️ Add Custom Specialist (Advanced)", expanded=False):
-        st.write("Create your own agent with a specific perspective.")
-        st.info("💡 **Examples:** 'Industry Historian', 'Behavioral Psychologist', 'Negotiation Expert'")
-
-        new_name = st.text_input("Specialist Role", placeholder="e.g., Strategic Hiring Manager")
-        new_prompt = st.text_area(
-            "Analysis Instructions",
-            placeholder=(
-                "Analyze the CV for long-term growth potential and alignment with Fortune 500 " "leadership standards..."
-            ),
+    """Handle adding a custom specialist persona."""
+    with st.expander("➕ Add Custom Specialist", expanded=False):
+        custom_name = st.text_input("Specialist Name (e.g., 'Google Senior Engineer')")
+        custom_prompt = st.text_area(
+            "What should this specialist focus on?",
+            help="Describe the persona's background and what they should look for in the CV.",
         )
-        if st.button("Add Specialist"):
-            if new_name and new_prompt:
-                st.session_state.custom_agents.append({"name": new_name, "prompt": new_prompt})
+        if st.button("Add to Board"):
+            if custom_name and custom_prompt:
+                # Add to custom_agents in session_state via state_manager
+                # Note: We still use session_state for some temporary UI lists,
+                # but we'll manage the core 'custom_agents' through state_manager
+                new_agent = {"name": custom_name, "prompt": custom_prompt}
+                state_manager.custom_agents.append(new_agent)
+                st.success(f"Added {custom_name} to the board!")
                 st.rerun()
 
 
 def render_team_step():
     """Render the team selection step UI."""
-    st.header("Step 4: Assemble Your Personal Board")
-    st.markdown("Select the AI experts who will critique your CV.")
+    st.header("Step 4: Assemble Your Board")
+    st.markdown("Select the AI specialists who will review your CV.")
 
-    all_available_personas = load_personas()
-    matchmaker_key = next((k for k in all_available_personas.keys() if "LinkedIn Matchmaker" in k), None)
+    # Load personas using PersonaService
+    available_personas = PersonaService.load_personas()
 
-    has_job_context = bool(st.session_state.job_url or st.session_state.job_text)
+    if not available_personas:
+        st.error("No personas found. Please check the 'personas' directory.")
+        return
 
-    # --- Pre-selection Logic ---
-    # Only initialize if NOT in session state to avoid overwriting user changes
-    if "selected_persona_names" not in st.session_state:
-        st.session_state.selected_persona_names = []
-        if matchmaker_key and has_job_context:
-            st.session_state.selected_persona_names = [matchmaker_key]
-
-    # --- Display Options Setup ---
-    display_options = []
-    option_mapping = {}
-    for k in all_available_personas.keys():
-        label = k
-        if k == matchmaker_key:
-            label = f"⭐ {k} (Recommended)"
-        display_options.append(label)
-        option_mapping[label] = k
-
-    # --- Multiselect Configuration ---
-    # Convert current stored keys to labels for the `default` parameter.
-    # CRITICAL: We use `default` only for initial render or when state is cleared.
-    # Streamlit's widget state persistence handles the rest if key is stable.
-    current_defaults = [label for label, key in option_mapping.items() if key in st.session_state.selected_persona_names]
-
-    # Use a callback or simply read the return value.
-    # Reading return value is standard but can cause the "reset" issue if `default` changes
-    # between reruns in a way that conflicts with internal widget state.
-    # However, since `current_defaults` is derived from session_state, it should be stable.
-
-    selected_labels = st.multiselect(
-        "Select Board Members", options=display_options, default=current_defaults, key="team_multiselect"
+    selected_names = st.multiselect(
+        "Choose your specialists:",
+        options=list(available_personas.keys()),
+        default=state_manager.selected_persona_names,
+        help="Select at least 2-3 specialists for a balanced review.",
     )
 
-    # --- State Synchronization ---
-    # Only update session state if the widget value differs from what we expect
-    new_selected_keys = [option_mapping[label] for label in selected_labels]
+    # Update state_manager
+    state_manager.selected_persona_names = selected_names
 
-    # Check for difference to avoid infinite rerender loops if we were to rerun
-    if new_selected_keys != st.session_state.selected_persona_names:
-        st.session_state.selected_persona_names = new_selected_keys
-
-        # Sync the custom_agents list immediately
-        current_manual_agents = [
-            agent
-            for agent in st.session_state.custom_agents
-            if not any(agent["name"] == p["name"] for p in all_available_personas.values())
-        ]
-        new_persona_agents = [all_available_personas[name].copy() for name in new_selected_keys]
-        st.session_state.custom_agents = new_persona_agents + current_manual_agents
-
-        # Force a rerun to ensure the UI reflects the new state immediately (e.g. the list below)
-        st.rerun()
+    # Map selected names back to Persona objects for the board
+    selected_personas = [available_personas[name] for name in selected_names]
+    st.session_state.board_agents = selected_personas  # Keep for crew_logic
 
     _handle_custom_specialist()
 
-    st.subheader("Current Team")
-    if not st.session_state.custom_agents:
-        st.warning("No agents selected.")
-    else:
-        for agent in st.session_state.custom_agents:
-            st.success(f"👤 **{agent['name']}**")
+    if state_manager.custom_agents:
+        st.subheader("Your Custom Specialists")
+        for idx, agent in enumerate(state_manager.custom_agents):
+            col1, col2 = st.columns([4, 1])
+            col1.write(f"👤 **{agent['name']}**")
+            if col2.button("🗑️", key=f"del_{idx}"):
+                state_manager.custom_agents.pop(idx)
+                st.rerun()
 
-    col1, col2 = st.columns([1, 1])
+    st.write("---")
+    col1, col2 = st.columns(2)
     with col1:
         if st.button("⬅️ Back", use_container_width=True):
-            prev_step()
+            state_manager.prev_step()
     with col2:
-        if st.button(
-            "🚀 Start Analysis ➡️",
-            type="primary",
-            disabled=not st.session_state.custom_agents,
-            use_container_width=True,
-        ):
-            next_step()
+        # Require at least one specialist (either pre-defined or custom)
+        is_ready = len(selected_names) > 0 or len(state_manager.custom_agents) > 0
+        if st.button("Next: Run Analysis ➡️", type="primary", disabled=not is_ready, use_container_width=True):
+            state_manager.next_step()

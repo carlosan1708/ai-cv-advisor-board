@@ -7,6 +7,8 @@ from openai import OpenAI
 # --- Constants ---
 DEFAULT_GEMINI_MODELS = [
     os.getenv("GEMINI_MODEL", "gemini-2.0-flash-lite"),
+    "gemini-3.0-pro-preview",
+    "gemini-2.5-pro",
     "gemini-2.0-flash-exp",
     "gemini-2.0-flash",
     "gemini-1.5-flash",
@@ -37,9 +39,9 @@ def get_available_models(api_key: str, provider: str = "Google") -> List[str]:
             for m in genai.list_models():
                 if "generateContent" in m.supported_generation_methods:
                     models.append(m.name.replace("models/", ""))
-            return sorted(models) if models else DEFAULT_GEMINI_MODELS
+            return sorted(models) if models else []
         except Exception:
-            return DEFAULT_GEMINI_MODELS
+            return []
 
     elif provider == "OpenAI":
         try:
@@ -47,8 +49,8 @@ def get_available_models(api_key: str, provider: str = "Google") -> List[str]:
             models = client.models.list()
             # Filter for relevant GPT models
             gpt_models = [m.id for m in models if m.id.startswith("gpt-") and "vision" not in m.id]
-            return sorted(gpt_models) if gpt_models else DEFAULT_OPENAI_MODELS
+            return sorted(gpt_models) if gpt_models else []
         except Exception:
-            return DEFAULT_OPENAI_MODELS
+            return []
 
     return []
