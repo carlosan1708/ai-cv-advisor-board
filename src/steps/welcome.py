@@ -9,12 +9,11 @@ def render_welcome_step():
     """Render the welcome screen UI."""
     st.markdown(
         """
-        <div style="text-align: center; padding: 20px;">
-            <span style="background-color: #e1f5fe; color: #01579b; padding: 4px 12px; border-radius: 16px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">MVP Version</span>
-            <h1 style="margin-top: 10px;">🚀 Elevate Your Career with AI</h1>
-            <p style="font-size: 1.2rem; color: #555;">
-                Welcome to the <b>AI - CV Advisory Board</b>. Get expert feedback and a personalized,
-                high-impact CV tailored to your dream job.
+        <div style="text-align: center; padding-top: 5px;">
+            <span style="background-color: #e1f5fe; color: #01579b; padding: 2px 10px; border-radius: 16px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">MVP Version</span>
+            <h2 style="margin-top: 5px; margin-bottom: 0;">🚀 Elevate Your Career with AI</h2>
+            <p style="font-size: 1rem; color: #555;">
+                Expert feedback and high-impact CVs tailored to your dream job.
             </p>
         </div>
     """,
@@ -24,21 +23,18 @@ def render_welcome_step():
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.markdown("### 👤 **The Board**")
-        st.write("Assemble a custom board of AI experts—from Tech Recruiters to Startup Founders.")
+        st.markdown("##### 👤 **The Board**")
+        st.write("Assemble AI experts: Tech Recruiters to Startup Founders.")
 
     with col2:
-        st.markdown("### 🔍 **Smart Critique**")
-        st.write("Receive deep, specialized analysis of your CV against a specific job description.")
+        st.markdown("##### 🔍 **Critique**")
+        st.write("Deep, specialized analysis against a job description.")
 
     with col3:
-        st.markdown("### ✨ **Personalized CV**")
-        st.write("Participate in an optional AI interview to inject real achievements into a " "reformatted document.")
+        st.markdown("##### ✨ **Personalized**")
+        st.write("Optional AI interview to inject real achievements.")
 
-    st.write("")
-    st.write("")
-
-    st.info("💡 **How it works:** Configuration -> Upload -> Job Context -> Team Selection -> expert Results.")
+    st.info("💡 **Steps:** Configuration -> Upload -> Job -> Team -> Results.", icon="ℹ️")
 
     if st.button("Get Started ➡️", use_container_width=True, type="primary"):
         state_manager.next_step()

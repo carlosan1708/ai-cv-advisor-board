@@ -8,8 +8,7 @@ from state_manager import state_manager
 
 def render_upload_step():
     """Render the CV upload step UI."""
-    st.header("Step 2: Upload Your CV")
-    st.markdown("Upload the Resume/CV you want to analyze.")
+    st.subheader("Step 2: Upload Your CV")
 
     with st.container(border=True):
         uploaded_file = st.file_uploader("Upload PDF or TXT", type=["pdf", "txt"])
@@ -26,9 +25,7 @@ def render_upload_step():
 
             if st.session_state.cv_content:
                 st.success(f"✅ Successfully loaded: **{st.session_state.cv_filename}**")
-                st.markdown(f"**Preview:** {st.session_state.cv_content[:200]}...")
-
-    st.write("---")
+                st.markdown(f"**Preview:** {st.session_state.cv_content[:150]}...")
     col1, col2 = st.columns([1, 1])
     with col1:
         if st.button("⬅️ Back", use_container_width=True):

@@ -45,7 +45,7 @@ def _run_analysis():
 
 def render_results_step():
     """Render the analysis results step UI."""
-    st.header("Step 5: Board Recommendations")
+    st.subheader("Step 5: Board Recommendations")
 
     if not state_manager.crew_result:
         # Show summary of selection
@@ -94,7 +94,7 @@ def render_results_step():
 
     st.success("Analysis Complete!")
 
-    tabs = st.tabs(["📋 Board Report", "🛠️ Minimal Changes", "✨ Optimized CV"])
+    tabs = st.tabs(["📋 Board Report", "🛠️ Minimal Changes", "✨ Optimized CV (WIP)"])
 
     with tabs[0]:
         st.markdown(board_report)
@@ -127,5 +127,5 @@ def render_results_step():
             state_manager.crew_result = None
             st.rerun()
     with col3:
-        if st.button("✨ Personalize ➡️", type="primary", use_container_width=True):
+        if st.button("✨ Personalize (WIP) ➡️", type="primary", use_container_width=True):
             state_manager.next_step()

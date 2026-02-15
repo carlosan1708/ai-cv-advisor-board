@@ -27,8 +27,7 @@ def _handle_custom_specialist():
 
 def render_team_step():
     """Render the team selection step UI."""
-    st.header("Step 4: Assemble Your Board")
-    st.markdown("Select the AI specialists who will review your CV.")
+    st.subheader("Step 4: Assemble Your Board")
 
     # Load personas using PersonaService
     available_personas = PersonaService.load_personas()
@@ -37,8 +36,7 @@ def render_team_step():
         st.error("No personas found. Please check the 'personas' directory.")
         return
 
-    st.subheader("Choose your specialists")
-    st.caption("Select at least 2-3 specialists for a balanced review.")
+    st.markdown("**Choose your specialists** (Select 2-3 for balanced review)")
 
     # Create a container for the checkboxes
     # We use a copy of the list to avoid modifying it while iterating if needed,

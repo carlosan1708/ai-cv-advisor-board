@@ -149,7 +149,7 @@ def _render_model_selection(config, available_models, custom_key_input, system_k
 
 def render_config_step():
     """Render the configuration step UI."""
-    st.header("Step 1: System Configuration")
+    st.subheader("Step 1: System Configuration")
 
     config = state_manager.config
     if config.is_online:
@@ -160,6 +160,5 @@ def render_config_step():
     models, custom_key, sys_key = _get_available_models(config, config.is_online)
     _render_model_selection(config, models, custom_key, sys_key)
 
-    st.write("---")
     if st.button("Next: Upload CV ➡️", type="primary", disabled=not models, use_container_width=True):
         state_manager.next_step()
