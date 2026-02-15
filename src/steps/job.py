@@ -13,15 +13,18 @@ def render_job_step():
 
     job = state_manager.job
 
-    def on_url_change():
+    def handle_scrape():
         url = st.session_state.job_url_input
-        if url and url != job.url:
+        if url:
             with st.spinner("Scraping job description..."):
                 try:
                     content = JobService.scrape_job(url)
                     state_manager.update_job(url=url, description=content)
+                    st.success("Successfully scraped job description!")
                 except Exception as e:
                     st.error(f"Failed to scrape job: {str(e)}")
+        else:
+            st.warning("Please enter a LinkedIn URL first.")
 
     def on_text_change():
         text = st.session_state.job_text_input
@@ -29,14 +32,18 @@ def render_job_step():
             state_manager.update_job(description=text)
 
     with st.container(border=True):
-        st.subheader("🔗 Option 1: Paste LinkedIn URL")
-        st.text_input(
-            "LinkedIn Job URL",
-            placeholder="https://www.linkedin.com/jobs/view/...",
-            key="job_url_input",
-            on_change=on_url_change,
-            value=job.url,
-        )
+        st.subheader(" Option 1: Paste LinkedIn URL")
+        url_col, btn_col = st.columns([4, 1])
+        with url_col:
+            st.text_input(
+                "LinkedIn Job URL",
+                placeholder="https://www.linkedin.com/jobs/view/...",
+                key="job_url_input",
+                value=job.url,
+                label_visibility="collapsed",
+            )
+        with btn_col:
+            st.button("Scrape 🔍", on_click=handle_scrape, use_container_width=True)
 
         st.subheader("📝 Option 2: Paste Job Description")
         st.text_area(

@@ -104,7 +104,7 @@ def create_crew(
         role="Board Head for CV Excellence",
         goal="Synthesize all specialist findings into one final actionable recommendation",
         backstory=(
-            "You are the leader of the AI - CV Advisor Board. Your job is to take all reports and create "
+            "You are the leader of the AI - CV Advisory Board. Your job is to take all reports and create "
             "a definitive guide for the candidate."
         ),
         llm=crew_model,

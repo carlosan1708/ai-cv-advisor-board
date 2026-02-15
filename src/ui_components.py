@@ -1,4 +1,4 @@
-"""Reusable UI components for the AI CV Advisor Board application."""
+"""Reusable UI components for the AI CV Advisory Board application."""
 
 import streamlit as st
 
@@ -36,4 +36,17 @@ def render_stepper(current_step):
 
 def render_header():
     """Render the application header."""
-    st.title("AI - CV Advisor Board")
+    st.title("AI - CV Advisory Board")
+
+
+def render_footer():
+    """Render the application footer."""
+    st.markdown("---")
+    st.markdown(
+        """
+        <div style="text-align: center; font-size: 0.8rem; color: #888;">
+            Author: <a href="https://linkedin.com/in/carlosan1708" target="_blank">linkedin/carlosan1708</a>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )

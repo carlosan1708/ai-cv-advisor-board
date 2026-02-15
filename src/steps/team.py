@@ -37,18 +37,37 @@ def render_team_step():
         st.error("No personas found. Please check the 'personas' directory.")
         return
 
-    selected_names = st.multiselect(
-        "Choose your specialists:",
-        options=list(available_personas.keys()),
-        default=state_manager.selected_persona_names,
-        help="Select at least 2-3 specialists for a balanced review.",
-    )
+    st.subheader("Choose your specialists")
+    st.caption("Select at least 2-3 specialists for a balanced review.")
 
-    # Update state_manager
-    state_manager.selected_persona_names = selected_names
+    # Create a container for the checkboxes
+    # We use a copy of the list to avoid modifying it while iterating if needed,
+    # but here we build a new list based on checkbox states.
+
+    # We need to maintain the selection state across reruns.
+    # The checkbox widget handles its own state if we provide a key.
+    # However, to sync with state_manager.selected_persona_names, we need to handle the logic.
+
+    current_selection = state_manager.selected_persona_names
+    new_selection = []
+
+    with st.container():
+        for name, persona in available_personas.items():
+            # Check if this persona is currently in the selected list
+            is_selected = name in current_selection
+
+            # Use a checkbox for each persona
+            # Key must be unique for each checkbox
+            checked = st.checkbox(f"**{name}**", value=is_selected, key=f"chk_{name}", help=persona.backstory)
+
+            if checked:
+                new_selection.append(name)
+
+    # Update state_manager with the new selection list
+    state_manager.selected_persona_names = new_selection
 
     # Map selected names back to Persona objects for the board
-    selected_personas = [available_personas[name] for name in selected_names]
+    selected_personas = [available_personas[name] for name in new_selection]
     st.session_state.board_agents = selected_personas  # Keep for crew_logic
 
     _handle_custom_specialist()
@@ -69,6 +88,6 @@ def render_team_step():
             state_manager.prev_step()
     with col2:
         # Require at least one specialist (either pre-defined or custom)
-        is_ready = len(selected_names) > 0 or len(state_manager.custom_agents) > 0
+        is_ready = len(new_selection) > 0 or len(state_manager.custom_agents) > 0
         if st.button("Next: Run Analysis ➡️", type="primary", disabled=not is_ready, use_container_width=True):
             state_manager.next_step()

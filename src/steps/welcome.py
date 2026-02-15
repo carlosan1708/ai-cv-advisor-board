@@ -10,9 +10,10 @@ def render_welcome_step():
     st.markdown(
         """
         <div style="text-align: center; padding: 20px;">
-            <h1>🚀 Elevate Your Career with AI</h1>
+            <span style="background-color: #e1f5fe; color: #01579b; padding: 4px 12px; border-radius: 16px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">MVP Version</span>
+            <h1 style="margin-top: 10px;">🚀 Elevate Your Career with AI</h1>
             <p style="font-size: 1.2rem; color: #555;">
-                Welcome to the <b>AI - CV Advisor Board</b>. Get expert feedback and a personalized,
+                Welcome to the <b>AI - CV Advisory Board</b>. Get expert feedback and a personalized,
                 high-impact CV tailored to your dream job.
             </p>
         </div>

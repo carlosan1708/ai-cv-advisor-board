@@ -5,8 +5,6 @@ import os
 import streamlit as st
 from crewai import Agent, Crew, Task
 
-from crew_logic import create_crew
-
 
 def render_personalize_step():
     """Render the personalization interview step UI."""
@@ -20,12 +18,15 @@ def render_personalize_step():
     )
 
     with st.container(border=True):
+        from state_manager import state_manager
+
         if not st.session_state.interview_questions:
             if st.button("🎤 Generate Questions", use_container_width=True, type="primary"):
                 with st.spinner("Board is reviewing documents..."):
-                    provider = st.session_state.llm_provider
-                    api_key = st.session_state.api_key
-                    model = st.session_state.selected_model
+                    config = state_manager.config
+                    provider = config.llm_provider
+                    api_key = config.api_key
+                    model = config.selected_model
 
                     if provider == "Google":
                         os.environ["GEMINI_API_KEY"] = api_key
@@ -68,18 +69,23 @@ def render_personalize_step():
                                 for i, q in enumerate(st.session_state.interview_questions)
                             ]
                         )
-                        app = create_crew(
-                            st.session_state.custom_agents,
-                            st.session_state.cv_content,
-                            st.session_state.job_description,
-                            st.session_state.api_key,
-                            st.session_state.selected_model,
-                            st.session_state.llm_provider,
+                        # We use AnalysisService instead of create_crew for consistency with state_manager
+                        from services.analysis_service import AnalysisService
+                        from services.persona_service import PersonaService
+
+                        available_personas = PersonaService.load_personas()
+                        selected_personas = [available_personas[name] for name in state_manager.selected_persona_names]
+
+                        crew = AnalysisService.create_analysis_crew(
+                            selected_personas=selected_personas,
+                            cv_content=st.session_state.cv_content,
+                            job_description=state_manager.job.description,
+                            config=state_manager.config,
                             user_answers=combined_answers,
                         )
-                        st.session_state.crew_result = app.kickoff()
+                        state_manager.crew_result = crew.kickoff()
                         st.session_state.interview_done = True
-                        st.session_state.step = 5  # Back to results
+                        state_manager.step = 5  # Back to results
                         st.rerun()
 
             if st.button("Cancel & Return"):

@@ -1,4 +1,4 @@
-"""Main entry point for the AI CV Advisor Board application."""
+"""Main entry point for the AI CV Advisory Board application."""
 
 import streamlit as st
 from dotenv import load_dotenv
@@ -11,14 +11,14 @@ from steps.results import render_results_step
 from steps.team import render_team_step
 from steps.upload import render_upload_step
 from steps.welcome import render_welcome_step
-from ui_components import render_header, render_stepper
+from ui_components import render_footer, render_header, render_stepper
 
 # Load environment variables
 load_dotenv()
 
 # --- Page Config ---
 st.set_page_config(
-    page_title="AI - CV Advisor Board",
+    page_title="AI - CV Advisory Board",
     page_icon="📄",
     layout="centered",
     initial_sidebar_state="collapsed",
@@ -44,3 +44,5 @@ elif state_manager.step == 5:
     render_results_step()
 elif state_manager.step == 6:
     render_personalize_step()
+
+render_footer()

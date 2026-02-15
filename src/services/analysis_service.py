@@ -62,7 +62,7 @@ class AnalysisService:
             role="Board Head for CV Excellence",
             goal="Synthesize all specialist findings into one final actionable recommendation",
             backstory=(
-                "You are the leader of the AI - CV Advisor Board. Your job is to take all reports and create "
+                "You are the leader of the AI - CV Advisory Board. Your job is to take all reports and create "
                 "a definitive guide for the candidate."
             ),
             llm=crew_model,
@@ -100,9 +100,11 @@ class AnalysisService:
         optimization_task = Task(
             description=(
                 f"Analyze CV: {cv_content[:4000]} against Job: {job_description}. "
-                "List specific keywords to add, phrasing tweaks, and items to remove."
+                "CRITICAL: Do NOT rewrite the whole CV. Provide ONLY a list of specific, actionable changes. "
+                "Focus on: 1. Essential keywords to add. 2. Specific phrasing tweaks (Original vs Suggested). "
+                "3. Bullet points to reframe. 4. Content to remove."
             ),
-            expected_output="A structured markdown list of specific, minimal changes to optimize the CV.",
+            expected_output="A brief, structured markdown list of specific changes. No full resume text.",
             agent=optimizer_agent,
         )
         agents.append(optimizer_agent)

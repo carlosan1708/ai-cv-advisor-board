@@ -48,8 +48,29 @@ def render_results_step():
     st.header("Step 5: Board Recommendations")
 
     if not state_manager.crew_result:
-        st.info("The board is ready. Click the button below to start the analysis.")
-        if st.button("🚀 Start Board Review", type="primary", use_container_width=True):
+        # Show summary of selection
+        # Collect all specialists names
+        predefined = state_manager.selected_persona_names
+        custom = [a["name"] for a in state_manager.custom_agents]
+        all_specialists = predefined + custom
+
+        st.markdown(
+            """
+        ### Analysis Summary
+        The following specialists will analyze your CV:
+        """
+        )
+
+        # Display as a bulleted list or comma separated
+        if all_specialists:
+            st.markdown("- " + "\n- ".join(all_specialists))
+        else:
+            st.warning("No specialists selected. Please go back and choose at least one.")
+
+        st.info("Click the button below to start the analysis.")
+
+        is_ready = len(all_specialists) > 0
+        if st.button("🚀 Start Board Review", type="primary", use_container_width=True, disabled=not is_ready):
             _run_analysis()
 
         if st.button("⬅️ Back to Team Selection", use_container_width=True):
@@ -59,22 +80,30 @@ def render_results_step():
     # Results available
     result = state_manager.crew_result
 
-    # In CrewAI v0.x, result is an object with 'raw' and 'tasks_output'
-    # We'll try to find the final CV from the last task output
-    final_cv = ""
-    if hasattr(result, "raw"):
-        # Usually the last task output is the reformatted CV
-        final_cv = result.raw
+    # In CrewAI, result.tasks_output contains the output of each task
+    # Our tasks: [...specialists, board_head, optimization, reformat]
+    tasks_output = getattr(result, "tasks_output", [])
+
+    # Safely extract outputs
+    # Last task is Reformatter
+    final_cv = tasks_output[-1].raw if len(tasks_output) >= 1 else str(result)
+    # Second to last is Optimization
+    minimal_changes = tasks_output[-2].raw if len(tasks_output) >= 2 else "Optimization data not found."
+    # Third to last is Board Head (Synthesized Report)
+    board_report = tasks_output[-3].raw if len(tasks_output) >= 3 else str(result)
 
     st.success("Analysis Complete!")
 
-    tabs = st.tabs(["📋 Board Report", "✨ Optimized CV", "🛠️ Minimal Changes"])
+    tabs = st.tabs(["📋 Board Report", "🛠️ Minimal Changes", "✨ Optimized CV"])
 
     with tabs[0]:
-        # Synthesized report is usually in the second to last task or part of the main result
-        st.markdown(result.raw if hasattr(result, "raw") else str(result))
+        st.markdown(board_report)
 
     with tabs[1]:
+        st.info("Specific keywords and phrasing tweaks identified by the board.")
+        st.markdown(minimal_changes)
+
+    with tabs[2]:
         st.markdown(final_cv)
 
         # PDF Download
@@ -88,11 +117,15 @@ def render_results_step():
                 use_container_width=True,
             )
 
-    with tabs[2]:
-        st.info("Specific keywords and phrasing tweaks identified by the board.")
-        # This would ideally be extracted from specific task outputs
-        st.write("Review the 'Minimal Changes' section in the Board Report for targeted updates.")
-
     st.write("---")
-    if st.button("🏠 Start Over", use_container_width=True):
-        state_manager.reset()
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        if st.button("🏠 Start Over", use_container_width=True):
+            state_manager.reset()
+    with col2:
+        if st.button("⬅️ Step Back", use_container_width=True):
+            state_manager.crew_result = None
+            st.rerun()
+    with col3:
+        if st.button("✨ Personalize ➡️", type="primary", use_container_width=True):
+            state_manager.next_step()

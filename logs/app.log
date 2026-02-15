@@ -1,0 +1,120 @@
+2026-02-15 14:18:56,102 - ai-cv-advisor - INFO - Using system default models for Google.
+2026-02-15 14:19:34,586 - ai-cv-advisor - INFO - Using system default models for Google.
+2026-02-15 14:19:38,223 - ai-cv-advisor - INFO - Using system default models for Google.
+2026-02-15 14:19:47,447 - ai-cv-advisor - INFO - Parsing CV file: Carlos Rodriguez Trigueros - 2026.pdf
+2026-02-15 14:19:54,458 - ai-cv-advisor - INFO - Attempting to scrape job from: https://www.linkedin.com/jobs/view/4292334898/
+2026-02-15 14:19:55,070 - ai-cv-advisor - INFO - Successfully scraped 8758 characters from https://www.linkedin.com/jobs/view/4292334898/
+2026-02-15 14:20:01,186 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:20:01,190 - ai-cv-advisor - ERROR - Error loading personas from product_design.yaml: 'role'
+2026-02-15 14:20:01,192 - ai-cv-advisor - ERROR - Error loading personas from matchmaker.yaml: 'role'
+2026-02-15 14:20:01,194 - ai-cv-advisor - ERROR - Error loading personas from it_specialist.yaml: 'role'
+2026-02-15 14:20:01,196 - ai-cv-advisor - ERROR - Error loading personas from startup_specialist.yaml: 'role'
+2026-02-15 14:20:01,198 - ai-cv-advisor - ERROR - Error loading personas from general.yaml: 'role'
+2026-02-15 14:20:01,199 - ai-cv-advisor - ERROR - Error loading personas from executive.yaml: 'role'
+2026-02-15 14:20:01,200 - ai-cv-advisor - INFO - Successfully loaded 0 personas.
+2026-02-15 14:20:41,896 - ai-cv-advisor - INFO - Using system default models for Google.
+2026-02-15 14:20:46,849 - ai-cv-advisor - INFO - Parsing CV file: Carlos Rodriguez Trigueros - 2026.pdf
+2026-02-15 14:20:52,027 - ai-cv-advisor - INFO - Attempting to scrape job from: https://www.linkedin.com/jobs/view/4292334898/
+2026-02-15 14:20:52,595 - ai-cv-advisor - INFO - Successfully scraped 8758 characters from https://www.linkedin.com/jobs/view/4292334898/
+2026-02-15 14:20:54,207 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:20:54,210 - ai-cv-advisor - ERROR - Error loading personas from product_design.yaml: 'role'
+2026-02-15 14:20:54,212 - ai-cv-advisor - ERROR - Error loading personas from matchmaker.yaml: 'role'
+2026-02-15 14:20:54,214 - ai-cv-advisor - ERROR - Error loading personas from it_specialist.yaml: 'role'
+2026-02-15 14:20:54,216 - ai-cv-advisor - ERROR - Error loading personas from startup_specialist.yaml: 'role'
+2026-02-15 14:20:54,218 - ai-cv-advisor - ERROR - Error loading personas from general.yaml: 'role'
+2026-02-15 14:20:54,220 - ai-cv-advisor - ERROR - Error loading personas from executive.yaml: 'role'
+2026-02-15 14:20:54,221 - ai-cv-advisor - INFO - Successfully loaded 0 personas.
+2026-02-15 14:21:35,711 - ai-cv-advisor - INFO - Using system default models for Google.
+2026-02-15 14:21:40,377 - ai-cv-advisor - INFO - Parsing CV file: Carlos Rodriguez Trigueros - 2026.pdf
+2026-02-15 14:21:47,618 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:21:47,629 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:21:52,517 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:21:52,526 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:21:54,511 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:21:54,520 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:21:56,987 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:21:56,993 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:21:59,464 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:21:59,471 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:22:07,112 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:22:07,119 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:22:12,927 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:22:12,934 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:29:43,414 - ai-cv-advisor - INFO - Using system default models for Google.
+2026-02-15 14:29:47,804 - ai-cv-advisor - INFO - Parsing CV file: Carlos Rodriguez Trigueros - 2026.pdf
+2026-02-15 14:29:55,414 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:29:55,424 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:29:58,548 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:29:58,557 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:29:59,937 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:29:59,944 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:30:00,868 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:30:00,875 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:31:43,218 - ai-cv-advisor - INFO - Using system default models for Google.
+2026-02-15 14:31:48,401 - ai-cv-advisor - INFO - Parsing CV file: Carlos Rodriguez Trigueros - 2026.pdf
+2026-02-15 14:31:55,864 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:31:55,873 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:32:11,014 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:32:11,021 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:32:51,636 - ai-cv-advisor - INFO - Creating analysis crew with 1 specialists...
+2026-02-15 14:32:51,652 - ai-cv-advisor - INFO - Analysis crew successfully created.
+2026-02-15 14:33:28,812 - ai-cv-advisor - INFO - Generating PDF from Markdown...
+2026-02-15 14:33:28,925 - ai-cv-advisor - INFO - PDF generated successfully.
+2026-02-15 14:36:24,841 - ai-cv-advisor - INFO - Using system default models for Google.
+2026-02-15 14:36:29,222 - ai-cv-advisor - INFO - Parsing CV file: Carlos Rodriguez Trigueros - 2026.pdf
+2026-02-15 14:36:34,651 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:36:34,660 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:36:36,184 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:36:36,191 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:37:25,036 - ai-cv-advisor - INFO - Using system default models for Google.
+2026-02-15 14:37:29,354 - ai-cv-advisor - INFO - Parsing CV file: Carlos Rodriguez Trigueros - 2026.pdf
+2026-02-15 14:38:34,904 - ai-cv-advisor - INFO - Using system default models for Google.
+2026-02-15 14:38:39,763 - ai-cv-advisor - INFO - Parsing CV file: Carlos Rodriguez Trigueros - 2026.pdf
+2026-02-15 14:38:45,225 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:38:45,236 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:38:46,875 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:38:46,883 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:38:52,173 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:38:52,182 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:38:54,222 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:38:54,229 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:38:56,630 - ai-cv-advisor - INFO - Creating analysis crew with 1 specialists...
+2026-02-15 14:38:56,647 - ai-cv-advisor - INFO - Analysis crew successfully created.
+2026-02-15 14:39:30,710 - ai-cv-advisor - INFO - Generating PDF from Markdown...
+2026-02-15 14:39:30,789 - ai-cv-advisor - INFO - PDF generated successfully.
+2026-02-15 14:39:59,868 - ai-cv-advisor - INFO - Generating PDF from Markdown...
+2026-02-15 14:39:59,937 - ai-cv-advisor - INFO - PDF generated successfully.
+2026-02-15 14:40:09,219 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:40:09,226 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:40:09,226 - ai-cv-advisor - INFO - Creating analysis crew with 1 specialists...
+2026-02-15 14:40:09,237 - ai-cv-advisor - INFO - Analysis crew successfully created.
+2026-02-15 14:40:40,745 - ai-cv-advisor - INFO - Generating PDF from Markdown...
+2026-02-15 14:40:40,815 - ai-cv-advisor - INFO - PDF generated successfully.
+2026-02-15 14:47:40,756 - ai-cv-advisor - INFO - Using system default models for Google.
+2026-02-15 14:47:45,320 - ai-cv-advisor - INFO - Parsing CV file: Carlos Rodriguez Trigueros - 2026.pdf
+2026-02-15 14:47:51,286 - ai-cv-advisor - INFO - Attempting to scrape job from: https://www.linkedin.com/jobs/view/4292334898/
+2026-02-15 14:47:52,045 - ai-cv-advisor - INFO - Successfully scraped 8758 characters from https://www.linkedin.com/jobs/view/4292334898/
+2026-02-15 14:49:08,930 - ai-cv-advisor - INFO - Using system default models for Google.
+2026-02-15 14:49:13,436 - ai-cv-advisor - INFO - Parsing CV file: Carlos Rodriguez Trigueros - 2026.pdf
+2026-02-15 14:49:19,418 - ai-cv-advisor - INFO - Attempting to scrape job from: https://www.linkedin.com/jobs/view/4292334898/
+2026-02-15 14:49:19,997 - ai-cv-advisor - INFO - Successfully scraped 8758 characters from https://www.linkedin.com/jobs/view/4292334898/
+2026-02-15 14:49:21,943 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:49:21,953 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:49:24,079 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:49:24,086 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:49:28,050 - ai-cv-advisor - INFO - Creating analysis crew with 1 specialists...
+2026-02-15 14:49:28,064 - ai-cv-advisor - INFO - Analysis crew successfully created.
+2026-02-15 14:50:03,232 - ai-cv-advisor - INFO - Generating PDF from Markdown...
+2026-02-15 14:50:03,300 - ai-cv-advisor - INFO - PDF generated successfully.
+2026-02-15 14:52:25,675 - ai-cv-advisor - INFO - Using system default models for Google.
+2026-02-15 14:52:30,391 - ai-cv-advisor - INFO - Parsing CV file: Carlos Rodriguez Trigueros - 2026.pdf
+2026-02-15 14:52:39,750 - ai-cv-advisor - INFO - Attempting to scrape job from: https://www.linkedin.com/jobs/view/4292334898/
+2026-02-15 14:52:40,370 - ai-cv-advisor - INFO - Successfully scraped 8758 characters from https://www.linkedin.com/jobs/view/4292334898/
+2026-02-15 14:52:43,002 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:52:43,014 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:52:44,632 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisor-board/personas
+2026-02-15 14:52:44,640 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-15 14:52:46,916 - ai-cv-advisor - INFO - Creating analysis crew with 1 specialists...
+2026-02-15 14:52:46,930 - ai-cv-advisor - INFO - Analysis crew successfully created.
+2026-02-15 14:53:22,568 - ai-cv-advisor - INFO - Generating PDF from Markdown...
+2026-02-15 14:53:22,626 - ai-cv-advisor - INFO - PDF generated successfully.

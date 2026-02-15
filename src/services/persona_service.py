@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from typing import Dict
 
@@ -11,9 +12,8 @@ class PersonaService:
     @staticmethod
     def load_personas() -> Dict[str, Persona]:
         """Loads all agent personas from the personas directory and returns them as Persona objects."""
-        # Calculate path relative to this file's location
-        # src/services/persona_service.py -> ../../personas
-        base_dir = Path(__file__).parent.parent.parent
+        # Use current working directory to find personas
+        base_dir = Path(os.getcwd())
         persona_dir = base_dir / "personas"
 
         all_personas: Dict[str, Persona] = {}
@@ -32,20 +32,27 @@ class PersonaService:
                         continue
 
                     for p_data in data:
+                        # Map the legacy 'prompt' field to our new model if necessary
+                        # Existing personas use 'name' and 'prompt'
+                        name = p_data.get("name", "Unknown Specialist")
+                        prompt = p_data.get("prompt", "")
+
+                        # In the new model, we split prompt into role/goal/backstory
+                        # For compatibility, we'll map them reasonably
                         persona = Persona(
-                            name=p_data["name"],
-                            role=p_data["role"],
-                            goal=p_data["goal"],
-                            backstory=p_data["backstory"],
+                            name=name,
+                            role=p_data.get("role", name),
+                            goal=p_data.get("goal", f"Analyze CV as a {name}"),
+                            backstory=p_data.get("backstory", prompt),
                             tools=p_data.get("tools", []),
                         )
+
                         # Create a unique display name including the source file
                         display_name = f"{persona.name} ({file_path.stem})"
                         all_personas[display_name] = persona
 
             except Exception as e:
                 logger.error(f"Error loading personas from {file_path.name}: {str(e)}")
-                # We don't raise here to allow other files to load, but we log the error
 
         logger.info(f"Successfully loaded {len(all_personas)} personas.")
         return all_personas

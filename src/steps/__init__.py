@@ -1,1 +1,1 @@
-"""Step definitions for the AI CV Advisor Board application."""
+"""Step definitions for the AI CV Advisory Board application."""
