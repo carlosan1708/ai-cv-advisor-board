@@ -166,27 +166,12 @@ def create_crew(
             Analyze the original CV: {cv_content[:4000]}
             Against the Job Description: {job_description}
 
-            Provide a list of "Minimal Changes" to optimize this CV.
-            Output must be a markdown list with the following sections:
-
-            ## 1. Keywords to Add
-            - [Keyword] (Suggested location: [Section Name])
-
-            ## 2. Phrasing Tweaks
-            - **Original:** "[Original Text]"
-            - **Suggested:** "[New Text]"
-            - **Reason:** [Brief explanation]
-
-            ## 3. Items to Remove
-            - [Text/Section] (Reason: [Brief explanation])
-
-            ## 4. New Bullet Points to Add
-            - [New Bullet Point] (Location: [Job/Section])
-
-            Do NOT rewrite the whole CV. Only list the changes.
+            CRITICAL: Do NOT rewrite the whole CV. Your goal is to provide a conversational yet professional list of specific recommendations.
+            Instead of a rigid structure, write it as advice: 'You are missing X or Y keywords', 'I would recommend changing this paragraph/bullet point to this...', 'Consider removing Z because...'.
+            Make it feel like a human expert giving quick, high-impact feedback.
         """
         ),
-        expected_output="A structured markdown list of specific, minimal changes to optimize the CV.",
+        expected_output="A conversational list of high-impact advice and specific phrasing recommendations.",
         agent=minimal_changes_agent,
     )
     agents.append(minimal_changes_agent)

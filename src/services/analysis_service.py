@@ -100,11 +100,11 @@ class AnalysisService:
         optimization_task = Task(
             description=(
                 f"Analyze CV: {cv_content[:4000]} against Job: {job_description}. "
-                "CRITICAL: Do NOT rewrite the whole CV. Provide ONLY a list of specific, actionable changes. "
-                "Focus on: 1. Essential keywords to add. 2. Specific phrasing tweaks (Original vs Suggested). "
-                "3. Bullet points to reframe. 4. Content to remove."
+                "CRITICAL: Do NOT rewrite the whole CV. Your goal is to provide a conversational yet professional list of specific recommendations. "
+                "Instead of a rigid structure, write it as advice: 'You are missing X or Y keywords', 'I would recommend changing this paragraph/bullet point to this...', 'Consider removing Z because...'. "
+                "Make it feel like a human expert giving quick, high-impact feedback."
             ),
-            expected_output="A brief, structured markdown list of specific changes. No full resume text.",
+            expected_output="A conversational list of high-impact advice and specific phrasing recommendations.",
             agent=optimizer_agent,
         )
         agents.append(optimizer_agent)
