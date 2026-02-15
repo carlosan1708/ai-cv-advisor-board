@@ -14,19 +14,38 @@ An AI-powered multi-agent system designed to analyze and optimize CVs. It uses *
 
 Collaborative AI deliberation to perfect your CV. Specialized AI agents (the "Board") review your CV from multiple perspectives, providing actionable feedback and a professionally rewritten version.
 
-## 🏗️ Project Structure
+## 🏗️ Project Architecture
+
+The application follows a scalable, service-oriented architecture designed for maintainability and growth:
 
 ```text
 .
 ├── personas/           # YAML files defining specialist personas
 ├── src/                # Application source code
-│   ├── app.py          # Main Streamlit application
-│   ├── crew_logic.py   # CrewAI orchestration logic
-│   └── steps/          # UI steps for the wizard
+│   ├── app.py          # Main Streamlit entry point
+│   ├── models.py       # Domain data models (Job, Persona, Config)
+│   ├── state_manager.py# Centralized session state orchestration
+│   ├── logger.py       # Structured application logging
+│   ├── exceptions.py   # Custom domain exceptions
+│   ├── services/       # Stateless business logic layer
+│   │   ├── analysis_service.py # CrewAI orchestration
+│   │   ├── cv_service.py       # PDF/Text processing
+│   │   ├── job_service.py      # Job scraping & extraction
+│   │   ├── persona_service.py  # Persona management
+│   │   └── config_service.py   # LLM & System configuration
+│   └── steps/          # Modular UI components for the wizard
+├── scripts/            # Development and CI/CD utilities
+├── tests/              # Automated test suite
 ├── requirements.txt    # Python dependencies
 ├── .env.example        # Template for environment variables
 └── README.md           # Project documentation
 ```
+
+### Core Design Principles
+- **Separation of Concerns**: UI code is decoupled from business logic.
+- **Stateless Services**: Logic is encapsulated in reusable services.
+- **Centralized State**: Application state is managed through a single `StateManager`.
+- **Observability**: Built-in structured logging and custom error handling.
 
 ## Prerequisites
 
@@ -89,6 +108,7 @@ The application will be available at `http://localhost:8501`.
 - **Rich Markdown Reports**: Get beautifully formatted, actionable feedback.
 - **Professional Rewrite**: Get an optimized version of your CV in Markdown or PDF.
 - **Interactive UI**: Modern interface built with Streamlit.
+- **Robust Observability**: Structured logging to `logs/app.log`.
 
 ## 🛠️ Tech Stack
 
@@ -96,7 +116,7 @@ The application will be available at `http://localhost:8501`.
 - **Agent Orchestration**: [CrewAI](https://www.crewai.com/)
 - **LLM Framework**: [LangChain](https://www.langchain.com/) / [LiteLLM](https://www.litellm.ai/)
 - **LLM**: [Google Gemini](https://ai.google.dev/) (Default) or OpenAI
-- **Search**: DuckDuckGo Search
+- **PDF Processing**: [PyPDF](https://pypi.org/project/pypdf/) & [FPDF2](https://py-pdf.github.io/fpdf2/)
 
 ## 🤝 Contributing
 

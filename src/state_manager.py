@@ -1,5 +1,3 @@
-from typing import Any, List, Optional
-
 import streamlit as st
 
 from models import AppConfig, JobInfo
@@ -54,6 +52,26 @@ class StateManager:
     @property
     def job(self) -> JobInfo:
         return st.session_state.job
+
+    @property
+    def custom_agents(self) -> list:
+        return st.session_state.custom_agents
+
+    @property
+    def selected_persona_names(self) -> list:
+        return st.session_state.selected_persona_names
+
+    @selected_persona_names.setter
+    def selected_persona_names(self, value: list):
+        st.session_state.selected_persona_names = value
+
+    @property
+    def crew_result(self):
+        return st.session_state.crew_result
+
+    @crew_result.setter
+    def crew_result(self, value):
+        st.session_state.crew_result = value
 
     def next_step(self):
         st.session_state.step += 1

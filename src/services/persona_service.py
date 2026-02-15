@@ -1,10 +1,8 @@
-import os
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict
 
 import yaml
 
-from exceptions import PersonaLoadError
 from logger import logger
 from models import Persona
 

@@ -13,7 +13,7 @@ class CVService:
     def parse_cv_file(file_content: bytes, filename: str) -> str:
         """Parses an uploaded CV file (PDF or TXT) and returns its text content."""
         try:
-            logger.info(f"Parsing CV file: {filename}")
+            logger.info("Parsing CV file: %s", filename)
             if filename.lower().endswith(".pdf"):
                 reader = PdfReader(io.BytesIO(file_content))
                 content = ""
@@ -26,7 +26,7 @@ class CVService:
                 return file_content.decode("utf-8").strip()
         except Exception as e:
             logger.error(f"Error parsing CV file {filename}: {str(e)}")
-            raise FileProcessingError(f"Failed to read the CV file. Please ensure it is a valid PDF or TXT file.") from e
+            raise FileProcessingError("Failed to read the CV file. Please ensure it is a valid PDF or TXT file.") from e
 
     @staticmethod
     def generate_pdf(cv_markdown: str) -> Optional[bytes]:

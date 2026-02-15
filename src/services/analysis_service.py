@@ -1,6 +1,6 @@
 import os
 import textwrap
-from typing import Dict, List, Optional
+from typing import List
 
 from crewai import Agent, Crew, Process, Task
 
@@ -32,14 +32,14 @@ class AnalysisService:
 
         # 1. Specialist Agents (from personas)
         for persona in selected_personas:
+            backstory = persona.backstory
+            if "{job_description}" in backstory:
+                backstory = backstory.format(job_description=job_description)
+
             specialist_agent = Agent(
                 role=persona.name,
                 goal=persona.goal,
-                backstory=(
-                    persona.backstory.format(job_description=job_description)
-                    if "{job_description}" in persona.backstory
-                    else persona.backstory
-                ),
+                backstory=backstory,
                 llm=crew_model,
                 verbose=True,
                 allow_delegation=False,
@@ -98,7 +98,10 @@ class AnalysisService:
         )
 
         optimization_task = Task(
-            description=f"Analyze CV: {cv_content[:4000]} against Job: {job_description}. List specific keywords to add, phrasing tweaks, and items to remove.",
+            description=(
+                f"Analyze CV: {cv_content[:4000]} against Job: {job_description}. "
+                "List specific keywords to add, phrasing tweaks, and items to remove."
+            ),
             expected_output="A structured markdown list of specific, minimal changes to optimize the CV.",
             agent=optimizer_agent,
         )
@@ -109,7 +112,9 @@ class AnalysisService:
         reformatter_agent = Agent(
             role="Expert CV Reformatter",
             goal="Rewrite the candidate CV into a professional, modern Markdown format incorporating board feedback.",
-            backstory="You are a professional CV writer. You preserve all professional depth while reframing for maximum impact.",
+            backstory=(
+                "You are a professional CV writer. You preserve all professional depth while reframing for " "maximum impact."
+            ),
             llm=crew_model,
             verbose=True,
             allow_delegation=False,

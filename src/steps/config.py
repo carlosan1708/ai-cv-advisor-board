@@ -45,72 +45,70 @@ def on_model_change():
     state_manager.update_config(selected_model=st.session_state.model_selector)
 
 
-def render_config_step():
-    """Render the configuration step UI."""
-    st.header("Step 1: System Configuration")
+def _render_online_config(config):
+    """Render configuration for online mode."""
+    st.success(f"System is pre-configured with **{config.selected_model}** and ready to go!")
+    with st.expander("🛠️ Advanced: Change Provider / Custom API Key", expanded=False):
+        st.radio(
+            "Select AI Provider",
+            options=["Google", "OpenAI"],
+            horizontal=True,
+            index=0 if config.llm_provider == "Google" else 1,
+            key="online_provider_select",
+            on_change=on_provider_change,
+        )
 
-    config = state_manager.config
-    is_online = config.is_online
+        current_val = config.api_key
+        system_key = ConfigService.get_env_api_key(config.llm_provider)
+        if current_val == system_key:
+            current_val = ""
 
-    if is_online:
-        st.success(f"System is pre-configured with **{config.selected_model}** and ready to go!")
-        with st.expander("🛠️ Advanced: Change Provider / Custom API Key", expanded=False):
-            st.radio(
-                "Select AI Provider",
-                options=["Google", "OpenAI"],
-                horizontal=True,
-                index=0 if config.llm_provider == "Google" else 1,
-                key="online_provider_select",
-                on_change=on_provider_change,
-            )
+        st.text_input(
+            f"Enter your {config.llm_provider} API Key",
+            type="password",
+            value=current_val,
+            help="Leave empty to use the system's default key.",
+            key="online_api_key_input",
+            on_change=on_api_key_change,
+        )
 
-            current_val = config.api_key
-            system_key = ConfigService.get_env_api_key(config.llm_provider)
-            if current_val == system_key:
-                current_val = ""
 
-            st.text_input(
-                f"Enter your {config.llm_provider} API Key",
-                type="password",
-                value=current_val,
-                help="Leave empty to use the system's default key.",
-                key="online_api_key_input",
-                on_change=on_api_key_change,
-            )
-    else:
-        st.info("Let's get your AI environment set up first.")
-        with st.container(border=True):
-            st.radio(
-                "Select AI Provider",
-                options=["Google", "OpenAI"],
-                horizontal=True,
-                index=0 if config.llm_provider == "Google" else 1,
-                key="offline_provider_select",
-                on_change=on_provider_change,
-            )
+def _render_offline_config(config):
+    """Render configuration for offline mode."""
+    st.info("Let's get your AI environment set up first.")
+    with st.container(border=True):
+        st.radio(
+            "Select AI Provider",
+            options=["Google", "OpenAI"],
+            horizontal=True,
+            index=0 if config.llm_provider == "Google" else 1,
+            key="offline_provider_select",
+            on_change=on_provider_change,
+        )
 
-            st.text_input(
-                f"Enter your {config.llm_provider} API Key",
-                type="password",
-                value=config.api_key,
-                help=f"Required to access {config.llm_provider} models.",
-                key="offline_api_key_input",
-                on_change=on_api_key_change,
-            )
+        st.text_input(
+            f"Enter your {config.llm_provider} API Key",
+            type="password",
+            value=config.api_key,
+            help=f"Required to access {config.llm_provider} models.",
+            key="offline_api_key_input",
+            on_change=on_api_key_change,
+        )
 
-    # Model Selection Logic
+
+def _get_available_models(config, is_online):
+    """Fetch available models based on current config."""
     active_key = config.api_key
     system_key = ConfigService.get_env_api_key(config.llm_provider)
 
-    custom_key_input = st.session_state.get("online_api_key_input" if is_online else "offline_api_key_input", "")
-    has_custom_key = bool(custom_key_input) and custom_key_input != system_key
+    custom_key_widget = "online_api_key_input" if is_online else "offline_api_key_input"
+    custom_key_input = st.session_state.get(custom_key_widget, "")
 
     if is_online and not custom_key_input:
         active_key = system_key
 
     available_models = []
     if active_key:
-        # Simple caching in session state for models
         cache_key = f"models_{config.llm_provider}_{active_key}"
         if cache_key in st.session_state:
             available_models = st.session_state[cache_key]
@@ -118,7 +116,11 @@ def render_config_step():
             available_models = ConfigService.fetch_models(config.llm_provider, active_key)
             if available_models:
                 st.session_state[cache_key] = available_models
+    return available_models, custom_key_input, system_key
 
+
+def _render_model_selection(config, available_models, custom_key_input, system_key):
+    """Render model selection dropdown."""
     if available_models:
         st.success(f"{config.llm_provider} API Key Validated!")
 
@@ -130,7 +132,8 @@ def render_config_step():
             state_manager.update_config(selected_model=current_selection)
 
         default_index = available_models.index(current_selection)
-        lock_it = is_online and not has_custom_key
+        has_custom_key = bool(custom_key_input) and custom_key_input != system_key
+        lock_it = config.is_online and not has_custom_key
 
         st.selectbox(
             f"Select {config.llm_provider} Model",
@@ -140,9 +143,23 @@ def render_config_step():
             on_change=on_model_change,
             disabled=lock_it,
         )
-    elif active_key:
+    elif config.api_key:
         st.error("Invalid API Key or no models available.")
 
+
+def render_config_step():
+    """Render the configuration step UI."""
+    st.header("Step 1: System Configuration")
+
+    config = state_manager.config
+    if config.is_online:
+        _render_online_config(config)
+    else:
+        _render_offline_config(config)
+
+    models, custom_key, sys_key = _get_available_models(config, config.is_online)
+    _render_model_selection(config, models, custom_key, sys_key)
+
     st.write("---")
-    if st.button("Next: Upload CV ➡️", type="primary", disabled=not available_models, use_container_width=True):
+    if st.button("Next: Upload CV ➡️", type="primary", disabled=not models, use_container_width=True):
         state_manager.next_step()
