@@ -81,6 +81,20 @@ python -m venv venv
 pip install -r requirements.txt
 ```
 
+#### Development Setup (Optional):
+If you plan to contribute, install development tools and pre-commit hooks:
+
+```bash
+pip install -r requirements-dev.txt
+pre-commit install
+```
+
+To run pre-commit checks manually on all files:
+
+```bash
+pre-commit run --all-files
+```
+
 ### 3. Environment Setup
 
 Create a `.env` file in the root directory:

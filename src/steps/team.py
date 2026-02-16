@@ -72,7 +72,7 @@ def render_team_step():
         # Force deselect the last added or prevent update?
         # Since we use st.checkbox, the UI state is already updated.
         # We can just warn and maybe block the 'Next' button or truncate the list.
-        new_selection = new_selection[:3] # Enforce limit in logic
+        new_selection = new_selection[:3]  # Enforce limit in logic
         # But UI will show checked.
         # Rerunning might fix UI state if we update session_state, but might be jarring.
         # The 'disabled' logic above should prevent selecting more than 3.

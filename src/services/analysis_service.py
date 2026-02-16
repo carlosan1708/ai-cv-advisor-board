@@ -127,9 +127,9 @@ class AnalysisService:
                 f"""
                 Review FULL CV: {cv_content[:15000]}
                 Additional Info: {user_answers}
-                
+
                 YOUR GOAL: Produce a FINAL CV that is a polished version of the original.
-                
+
                 CRITICAL INSTRUCTIONS:
                 1. PRESERVE EVERYTHING: You must include ALL sections from the original CV.
                    - **IMPORTANT**: Check the VERY END of the content for Education, Certifications, and Languages.
@@ -139,12 +139,12 @@ class AnalysisService:
                    - Education (Degrees, Universities, Dates) - DO NOT OMIT.
                    - Skills (Technical, Soft, Tools)
                    - Projects / Publications / Awards (if present)
-                
+
                 2. APPLY MINIMAL CHANGES:
                    - Only integrate the specific keyword/phrasing tweaks from the 'Targeted Resume Optimizer'.
                    - Do NOT summarize or shorten descriptions unless explicitly told to.
                    - Do NOT remove any section.
-                
+
                 3. FORMATTING:
                    - Output CLEAN Markdown.
                    - Use `## Section Name` for headers.
@@ -166,23 +166,22 @@ class AnalysisService:
         # Actually, for pure speed with independent specialists + final synthesis,
         # ensuring async_execution=True on specialists is key (already done).
         # We can also try to reduce the model overhead by setting `max_rpm` or `language` if applicable.
-        
-        # However, a common speedup is to use a specific manager_llm if hierarchical, 
+
+        # However, a common speedup is to use a specific manager_llm if hierarchical,
         # but here we use sequential with dependencies.
-        
+
         # To further speed up, we can disable `memory` (if enabled by default) which adds latency.
         analysis_crew = Crew(
-            agents=agents, 
-            tasks=tasks, 
-            process=Process.sequential, 
+            agents=agents,
+            tasks=tasks,
+            process=Process.sequential,
             verbose=True,
             memory=False,  # Disable memory to speed up processing
-            embedder={
-                "provider": "google",
-                "config": {
-                    "model": "models/embedding-001"
-                }
-            } if config.llm_provider == "Google" else None
+            embedder=(
+                {"provider": "google", "config": {"model": "models/embedding-001"}}
+                if config.llm_provider == "Google"
+                else None
+            ),
         )
 
         logger.info("Analysis crew successfully created.")

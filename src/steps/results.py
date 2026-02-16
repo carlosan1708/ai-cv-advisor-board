@@ -143,11 +143,13 @@ def render_results_step():
             "I recommend to review the board recommendations and customize it based on real experience."
         )
 
-        st.info("💡 **Note:** The text below is a preview. The **Downloaded PDF** will have a professional layout and formatting.")
+        st.info(
+            "💡 **Note:** The text below is a preview. The **Downloaded PDF** will have a professional layout and formatting."
+        )
         st.markdown(final_cv)
 
         if pdf_bytes:
-             st.caption("👉 For a full rewrite tailored to your interview answers, use the **Personalize** step below.")
+            st.caption("👉 For a full rewrite tailored to your interview answers, use the **Personalize** step below.")
 
     st.write("---")
     col1, col2, col3 = st.columns(3)

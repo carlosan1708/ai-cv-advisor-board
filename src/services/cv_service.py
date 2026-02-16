@@ -33,7 +33,7 @@ class CVService:
         """Generates a professional PDF document from Markdown content (A4, Arial 10/11/12/16)."""
         try:
             logger.info("Generating PDF from Markdown...")
-            
+
             # Clean up markdown code blocks if present
             cleaned_cv = cv_markdown.strip()
             if cleaned_cv.startswith("```markdown"):
@@ -42,7 +42,7 @@ class CVService:
                 cleaned_cv = cleaned_cv[3:]
             if cleaned_cv.endswith("```"):
                 cleaned_cv = cleaned_cv[:-3]
-            
+
             cleaned_cv = cleaned_cv.strip()
 
             # Use A4 format explicitly
@@ -63,7 +63,7 @@ class CVService:
                 .replace("”", '"')
                 .replace("•", "-")
             )
-            
+
             # Encode to latin-1 to avoid FPDF Unicode errors
             safe_cv = safe_cv.encode("latin-1", "replace").decode("latin-1")
 
