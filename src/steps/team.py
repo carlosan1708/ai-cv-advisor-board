@@ -39,13 +39,6 @@ def render_team_step():
     st.info("💡 **Note:** To manage API costs and ensure efficient processing, please select a **maximum of 3 specialists**.")
 
     # Create a container for the checkboxes
-    # We use a copy of the list to avoid modifying it while iterating if needed,
-    # but here we build a new list based on checkbox states.
-
-    # We need to maintain the selection state across reruns.
-    # The checkbox widget handles its own state if we provide a key.
-    # However, to sync with state_manager.selected_persona_names, we need to handle the logic.
-
     current_selection = state_manager.selected_persona_names
     new_selection = []
 
@@ -54,29 +47,25 @@ def render_team_step():
             # Check if this persona is currently in the selected list
             is_selected = name in current_selection
 
-            # Determine if checkbox should be disabled
-            # Disable if we already have 3 selected AND this one is NOT selected
+            # Disable unchecked boxes if we already have 3 selected
+            # This prevents the user from selecting a 4th one
             is_disabled = len(current_selection) >= 3 and not is_selected
 
-            # Use a checkbox for each persona
-            # Key must be unique for each checkbox
             checked = st.checkbox(
-                f"**{name}**", value=is_selected, key=f"chk_{name}", help=persona.backstory, disabled=is_disabled
+                f"**{name}**",
+                value=is_selected,
+                key=f"chk_{name}",
+                help=persona.backstory,
+                disabled=is_disabled,
             )
 
             if checked:
                 new_selection.append(name)
 
+    # Safety check (though disabled logic should prevent this)
     if len(new_selection) > 3:
-        st.error("⚠️ You can only select up to 3 specialists.")
-        # Force deselect the last added or prevent update?
-        # Since we use st.checkbox, the UI state is already updated.
-        # We can just warn and maybe block the 'Next' button or truncate the list.
-        new_selection = new_selection[:3]  # Enforce limit in logic
-        # But UI will show checked.
-        # Rerunning might fix UI state if we update session_state, but might be jarring.
-        # The 'disabled' logic above should prevent selecting more than 3.
-        pass
+        st.warning("⚠️ You can only select up to 3 specialists. Truncating selection.")
+        new_selection = new_selection[:3]
 
     # Update state_manager with the new selection list
     state_manager.selected_persona_names = new_selection

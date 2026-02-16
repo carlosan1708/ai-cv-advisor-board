@@ -1,37 +1,42 @@
 import os
-import textwrap
-from typing import List
+from typing import List, Tuple
 
 from crewai import Agent, Crew, Process, Task
 
 from logger import logger
 from models import AppConfig, Persona
+from prompts import (
+    BOARD_HEAD_BACKSTORY,
+    BOARD_HEAD_TASK_DESCRIPTION,
+    OPTIMIZER_AGENT_BACKSTORY,
+    OPTIMIZER_TASK_DESCRIPTION,
+    REFORMATTER_AGENT_BACKSTORY,
+    REFORMATTER_TASK_DESCRIPTION,
+)
 
 
 class AnalysisService:
     @staticmethod
-    def create_analysis_crew(
-        selected_personas: List[Persona], cv_content: str, job_description: str, config: AppConfig, user_answers: str = ""
-    ) -> Crew:
-        """Creates and configures a CrewAI crew for CV analysis using domain models."""
-
-        logger.info(f"Creating analysis crew with {len(selected_personas)} specialists...")
-
-        # Configure environment for LiteLLM
+    def _configure_llm(config: AppConfig) -> str:
+        """Configures the LLM environment and returns the model string."""
         if config.llm_provider == "Google":
             os.environ["GEMINI_API_KEY"] = config.api_key
-            crew_model = f"gemini/{config.selected_model}"
+            return f"gemini/{config.selected_model}"
         else:
             os.environ["OPENAI_API_KEY"] = config.api_key
-            crew_model = (
-                f"openai/{config.selected_model}" if not config.selected_model.startswith("openai/") else config.selected_model
-            )
+            if config.selected_model.startswith("openai/"):
+                return config.selected_model
+            return f"openai/{config.selected_model}"
 
+    @staticmethod
+    def _create_specialist_agents(
+        personas: List[Persona], cv_content: str, job_description: str, model: str
+    ) -> Tuple[List[Agent], List[Task]]:
+        """Creates specialist agents and their analysis tasks."""
         agents = []
         tasks = []
 
-        # 1. Specialist Agents (from personas)
-        for persona in selected_personas:
+        for persona in personas:
             backstory = persona.backstory
             if "{job_description}" in backstory:
                 backstory = backstory.format(job_description=job_description)
@@ -40,7 +45,7 @@ class AnalysisService:
                 role=persona.name,
                 goal=persona.goal,
                 backstory=backstory,
-                llm=crew_model,
+                llm=model,
                 verbose=True,
                 allow_delegation=False,
             )
@@ -57,32 +62,47 @@ class AnalysisService:
             agents.append(specialist_agent)
             tasks.append(specialist_task)
 
+        return agents, tasks
+
+    @staticmethod
+    def create_analysis_crew(
+        selected_personas: List[Persona],
+        cv_content: str,
+        job_description: str,
+        config: AppConfig,
+        user_answers: str = "",
+    ) -> Crew:
+        """Creates and configures a CrewAI crew for CV analysis using domain models."""
+
+        logger.info(f"Creating analysis crew with {len(selected_personas)} specialists...")
+
+        crew_model = AnalysisService._configure_llm(config)
+
+        agents = []
+        tasks = []
+
+        # 1. Specialist Agents
+        specialist_agents, specialist_tasks = AnalysisService._create_specialist_agents(
+            selected_personas, cv_content, job_description, crew_model
+        )
+        agents.extend(specialist_agents)
+        tasks.extend(specialist_tasks)
+
         # 2. Board Head (Synthesizer)
         board_head = Agent(
             role="Board Head for CV Excellence",
             goal="Synthesize all specialist findings into one final actionable recommendation",
-            backstory=(
-                "You are the leader of the AI - CV Advisory Board. Your job is to take all reports and create "
-                "a definitive guide for the candidate."
-            ),
+            backstory=BOARD_HEAD_BACKSTORY,
             llm=crew_model,
             verbose=True,
             allow_delegation=False,
         )
 
         final_recommendation_task = Task(
-            description=textwrap.dedent(
-                """
-                Review all specialist reports and the original CV.
-                Provide a final recommendation focusing on CRITIQUE and ADVICE.
-                Include: Executive Summary, Specialist Summaries, Top 3 Critical Missing Elements,
-                Strategic Advice, and Actionable Next Steps.
-                Use rich markdown formatting.
-            """
-            ),
+            description=BOARD_HEAD_TASK_DESCRIPTION,
             expected_output="A comprehensive board recommendation report focusing on critique and strategic advice.",
             agent=board_head,
-            context=tasks,
+            context=specialist_tasks,  # Use specialist tasks as context
         )
         agents.append(board_head)
         tasks.append(final_recommendation_task)
@@ -91,18 +111,15 @@ class AnalysisService:
         optimizer_agent = Agent(
             role="Targeted Resume Optimizer",
             goal="Identify specific keywords and phrasing tweaks to align with the job description.",
-            backstory="You are a Resume Surgeon. You focus on keywords, impact phrasing, and removing irrelevance.",
+            backstory=OPTIMIZER_AGENT_BACKSTORY,
             llm=crew_model,
             verbose=True,
             allow_delegation=False,
         )
 
         optimization_task = Task(
-            description=(
-                f"Analyze CV: {cv_content[:15000]} against Job: {job_description}. "
-                "CRITICAL: Do NOT rewrite the whole CV. Your goal is to provide a conversational yet professional list of specific recommendations. "
-                "Instead of a rigid structure, write it as advice: 'You are missing X or Y keywords', 'I would recommend changing this paragraph/bullet point to this...', 'Consider removing Z because...'. "
-                "Make it feel like a human expert giving quick, high-impact feedback."
+            description=OPTIMIZER_TASK_DESCRIPTION.format(
+                cv_content_snippet=cv_content[:15000], job_description=job_description
             ),
             expected_output="A conversational list of high-impact advice and specific phrasing recommendations.",
             agent=optimizer_agent,
@@ -114,46 +131,14 @@ class AnalysisService:
         reformatter_agent = Agent(
             role="Expert CV Reformatter",
             goal="Rewrite the candidate CV into a professional, modern Markdown format incorporating board feedback.",
-            backstory=(
-                "You are a professional CV writer. You preserve all professional depth while reframing for " "maximum impact."
-            ),
+            backstory=REFORMATTER_AGENT_BACKSTORY,
             llm=crew_model,
             verbose=True,
             allow_delegation=False,
         )
 
         reformat_task = Task(
-            description=textwrap.dedent(
-                f"""
-                Review FULL CV: {cv_content[:15000]}
-                Additional Info: {user_answers}
-
-                YOUR GOAL: Produce a FINAL CV that is a polished version of the original.
-
-                CRITICAL INSTRUCTIONS:
-                1. PRESERVE EVERYTHING: You must include ALL sections from the original CV.
-                   - **IMPORTANT**: Check the VERY END of the content for Education, Certifications, and Languages.
-                   - Contact Info (Links, LinkedIn, GitHub, Email, Phone) - DO NOT OMIT.
-                   - Professional Summary
-                   - Experience (ALL roles, dates, and companies)
-                   - Education (Degrees, Universities, Dates) - DO NOT OMIT.
-                   - Skills (Technical, Soft, Tools)
-                   - Projects / Publications / Awards (if present)
-
-                2. APPLY MINIMAL CHANGES:
-                   - Only integrate the specific keyword/phrasing tweaks from the 'Targeted Resume Optimizer'.
-                   - Do NOT summarize or shorten descriptions unless explicitly told to.
-                   - Do NOT remove any section.
-
-                3. FORMATTING:
-                   - Output CLEAN Markdown.
-                   - Use `## Section Name` for headers.
-                   - Use `### Role/Title` for sub-headers.
-                   - Use `- ` for bullet points.
-                   - Ensure links are formatted as `[Link Text](URL)`.
-                   - Do NOT start with ```markdown or any code block syntax. Just return the raw markdown content.
-            """
-            ),
+            description=REFORMATTER_TASK_DESCRIPTION.format(cv_content_snippet=cv_content[:15000], user_answers=user_answers),
             expected_output="The complete, polished CV with all original sections and minimal improvements, formatted in clean Markdown.",
             agent=reformatter_agent,
             context=[optimization_task],
@@ -161,22 +146,13 @@ class AnalysisService:
         agents.append(reformatter_agent)
         tasks.append(reformat_task)
 
-        # Speed Optimization: Use Process.hierarchical for parallel execution if multiple specialists,
-        # or stick to sequential with async tasks.
-        # Actually, for pure speed with independent specialists + final synthesis,
-        # ensuring async_execution=True on specialists is key (already done).
-        # We can also try to reduce the model overhead by setting `max_rpm` or `language` if applicable.
-
-        # However, a common speedup is to use a specific manager_llm if hierarchical,
-        # but here we use sequential with dependencies.
-
-        # To further speed up, we can disable `memory` (if enabled by default) which adds latency.
+        # Speed Optimization: Disable memory to speed up processing
         analysis_crew = Crew(
             agents=agents,
             tasks=tasks,
             process=Process.sequential,
             verbose=True,
-            memory=False,  # Disable memory to speed up processing
+            memory=False,
             embedder=(
                 {"provider": "google", "config": {"model": "models/embedding-001"}}
                 if config.llm_provider == "Google"

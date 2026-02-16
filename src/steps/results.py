@@ -3,6 +3,7 @@
 import streamlit as st
 
 from logger import logger
+from models import Persona
 from services.analysis_service import AnalysisService
 from services.cv_service import CVService
 from state_manager import state_manager
@@ -13,11 +14,10 @@ def _run_analysis():
     try:
         # Combine selected pre-defined personas and custom personas
         # available_personas are already Persona objects from team step
-        selected_personas = st.session_state.get("board_agents", [])
+        # Make a copy to avoid modifying session state list in place if irrelevant
+        selected_personas = list(st.session_state.get("board_agents", []))
 
         # Add custom personas (as Persona objects)
-        from models import Persona
-
         for custom in state_manager.custom_agents:
             selected_personas.append(
                 Persona(
@@ -28,14 +28,22 @@ def _run_analysis():
                 )
             )
 
-        with st.spinner("The Board is reviewing your CV... This may take a minute."):
+        with st.status("🚀 The Board is now in session...", expanded=True) as status:
+            st.write("🔍 Assembling the team of specialists...")
             crew = AnalysisService.create_analysis_crew(
                 selected_personas=selected_personas,
                 cv_content=st.session_state.cv_content,
                 job_description=state_manager.job.description,
                 config=state_manager.config,
             )
+
+            st.write("🤖 Specialists are analyzing your CV against the job description...")
+            # This is the blocking call where the main work happens
             result = crew.kickoff()
+
+            st.write("📝 Synthesizing final recommendations...")
+            status.update(label="✅ Analysis Complete!", state="complete", expanded=False)
+
             state_manager.crew_result = result
             st.rerun()
     except Exception as e:
@@ -69,10 +77,7 @@ def render_results_step():
 
         st.info("Click the button below to start the analysis.")
 
-        st.warning(
-            "⏳ **Note:** The process could take up to **2 minutes** depending on the complexity of your CV. "
-            "The more specialists you selected, the longer it will take."
-        )
+        st.warning("⏳ **Note:** The process could take up to **2 minutes**. ")
 
         is_ready = len(all_specialists) > 0
         if st.button("🚀 Start Board Review", type="primary", use_container_width=True, disabled=not is_ready):
@@ -97,22 +102,9 @@ def render_results_step():
     # Third to last is Board Head (Synthesized Report)
     board_report = tasks_output[-3].raw if len(tasks_output) >= 3 else str(result)
 
-    # Clean up markdown outputs to remove code blocks if present
-    def clean_output(text):
-        if not isinstance(text, str):
-            return str(text)
-        text = text.strip()
-        if text.startswith("```markdown"):
-            text = text[11:]
-        elif text.startswith("```"):
-            text = text[3:]
-        if text.endswith("```"):
-            text = text[:-3]
-        return text.strip()
-
-    final_cv = clean_output(final_cv)
-    minimal_changes = clean_output(minimal_changes)
-    board_report = clean_output(board_report)
+    final_cv = CVService.clean_markdown_code_blocks(str(final_cv))
+    minimal_changes = CVService.clean_markdown_code_blocks(str(minimal_changes))
+    board_report = CVService.clean_markdown_code_blocks(str(board_report))
 
     st.success("Analysis Complete!")
 
@@ -138,9 +130,10 @@ def render_results_step():
                 type="primary",
             )
 
-        st.warning(
-            "⚠️ **Highlight:** Some of the changes performed here might not adjust to the reality of your skills. "
-            "I recommend to review the board recommendations and customize it based on real experience."
+        st.error(
+            "⚠️ **CRITICAL WARNING:** The AI may suggest skills or experiences you **do not possess**. "
+            "Review every change carefully. Including false information in your CV can have serious consequences. "
+            "Ensure all content aligns with your actual experience."
         )
 
         st.info(
