@@ -69,6 +69,11 @@ def render_results_step():
 
         st.info("Click the button below to start the analysis.")
 
+        st.warning(
+            "⏳ **Note:** The process could take up to **2 minutes** depending on the complexity of your CV. "
+            "The more specialists you selected, the longer it will take."
+        )
+
         is_ready = len(all_specialists) > 0
         if st.button("🚀 Start Board Review", type="primary", use_container_width=True, disabled=not is_ready):
             _run_analysis()
@@ -92,9 +97,26 @@ def render_results_step():
     # Third to last is Board Head (Synthesized Report)
     board_report = tasks_output[-3].raw if len(tasks_output) >= 3 else str(result)
 
+    # Clean up markdown outputs to remove code blocks if present
+    def clean_output(text):
+        if not isinstance(text, str):
+            return str(text)
+        text = text.strip()
+        if text.startswith("```markdown"):
+            text = text[11:]
+        elif text.startswith("```"):
+            text = text[3:]
+        if text.endswith("```"):
+            text = text[:-3]
+        return text.strip()
+
+    final_cv = clean_output(final_cv)
+    minimal_changes = clean_output(minimal_changes)
+    board_report = clean_output(board_report)
+
     st.success("Analysis Complete!")
 
-    tabs = st.tabs(["📋 Board Report", "🛠️ Minimal Changes", "✨ Optimized CV (WIP)"])
+    tabs = st.tabs(["📋 Board Report", "🛠️ Minimal Changes", "📄 PDF Generated"])
 
     with tabs[0]:
         st.markdown(board_report)
@@ -104,18 +126,28 @@ def render_results_step():
         st.markdown(minimal_changes)
 
     with tabs[2]:
-        st.markdown(final_cv)
-
-        # PDF Download
+        # PDF Download - Moved to Top
         pdf_bytes = CVService.generate_pdf(final_cv)
         if pdf_bytes:
             st.download_button(
-                label="📥 Download Optimized CV (PDF)",
+                label="📥 Download Generated PDF",
                 data=pdf_bytes,
                 file_name="Optimized_CV.pdf",
                 mime="application/pdf",
                 use_container_width=True,
+                type="primary",
             )
+
+        st.warning(
+            "⚠️ **Highlight:** Some of the changes performed here might not adjust to the reality of your skills. "
+            "I recommend to review the board recommendations and customize it based on real experience."
+        )
+
+        st.info("💡 **Note:** The text below is a preview. The **Downloaded PDF** will have a professional layout and formatting.")
+        st.markdown(final_cv)
+
+        if pdf_bytes:
+             st.caption("👉 For a full rewrite tailored to your interview answers, use the **Personalize** step below.")
 
     st.write("---")
     col1, col2, col3 = st.columns(3)

@@ -47,7 +47,7 @@ class AnalysisService:
 
             specialist_task = Task(
                 description=(
-                    f"Analyze the candidate's CV: {cv_content[:2000]} based on your expertise. "
+                    f"Analyze the candidate's CV: {cv_content[:15000]} based on your expertise. "
                     f"Consider the job description: {job_description}"
                 ),
                 expected_output=f"A detailed critique from the perspective of a {persona.name}.",
@@ -99,7 +99,7 @@ class AnalysisService:
 
         optimization_task = Task(
             description=(
-                f"Analyze CV: {cv_content[:4000]} against Job: {job_description}. "
+                f"Analyze CV: {cv_content[:15000]} against Job: {job_description}. "
                 "CRITICAL: Do NOT rewrite the whole CV. Your goal is to provide a conversational yet professional list of specific recommendations. "
                 "Instead of a rigid structure, write it as advice: 'You are missing X or Y keywords', 'I would recommend changing this paragraph/bullet point to this...', 'Consider removing Z because...'. "
                 "Make it feel like a human expert giving quick, high-impact feedback."
@@ -125,20 +125,65 @@ class AnalysisService:
         reformat_task = Task(
             description=textwrap.dedent(
                 f"""
-                Review FULL CV: {cv_content[:4000]}
+                Review FULL CV: {cv_content[:15000]}
                 Additional Info: {user_answers}
-                Rewrite the FULL CV in Markdown using professional structure (Summary, Experience, Education, Skills).
-                Ensure NO professional experience is omitted.
+                
+                YOUR GOAL: Produce a FINAL CV that is a polished version of the original.
+                
+                CRITICAL INSTRUCTIONS:
+                1. PRESERVE EVERYTHING: You must include ALL sections from the original CV.
+                   - **IMPORTANT**: Check the VERY END of the content for Education, Certifications, and Languages.
+                   - Contact Info (Links, LinkedIn, GitHub, Email, Phone) - DO NOT OMIT.
+                   - Professional Summary
+                   - Experience (ALL roles, dates, and companies)
+                   - Education (Degrees, Universities, Dates) - DO NOT OMIT.
+                   - Skills (Technical, Soft, Tools)
+                   - Projects / Publications / Awards (if present)
+                
+                2. APPLY MINIMAL CHANGES:
+                   - Only integrate the specific keyword/phrasing tweaks from the 'Targeted Resume Optimizer'.
+                   - Do NOT summarize or shorten descriptions unless explicitly told to.
+                   - Do NOT remove any section.
+                
+                3. FORMATTING:
+                   - Output CLEAN Markdown.
+                   - Use `## Section Name` for headers.
+                   - Use `### Role/Title` for sub-headers.
+                   - Use `- ` for bullet points.
+                   - Ensure links are formatted as `[Link Text](URL)`.
+                   - Do NOT start with ```markdown or any code block syntax. Just return the raw markdown content.
             """
             ),
-            expected_output="A comprehensive, perfectly formatted, and professional CV in Markdown.",
+            expected_output="The complete, polished CV with all original sections and minimal improvements, formatted in clean Markdown.",
             agent=reformatter_agent,
-            context=[final_recommendation_task],
+            context=[optimization_task],
         )
         agents.append(reformatter_agent)
         tasks.append(reformat_task)
 
-        analysis_crew = Crew(agents=agents, tasks=tasks, process=Process.sequential, verbose=True)
+        # Speed Optimization: Use Process.hierarchical for parallel execution if multiple specialists,
+        # or stick to sequential with async tasks.
+        # Actually, for pure speed with independent specialists + final synthesis,
+        # ensuring async_execution=True on specialists is key (already done).
+        # We can also try to reduce the model overhead by setting `max_rpm` or `language` if applicable.
+        
+        # However, a common speedup is to use a specific manager_llm if hierarchical, 
+        # but here we use sequential with dependencies.
+        
+        # To further speed up, we can disable `memory` (if enabled by default) which adds latency.
+        analysis_crew = Crew(
+            agents=agents, 
+            tasks=tasks, 
+            process=Process.sequential, 
+            verbose=True,
+            memory=False,  # Disable memory to speed up processing
+            embedder={
+                "provider": "google",
+                "config": {
+                    "model": "models/embedding-001"
+                }
+            } if config.llm_provider == "Google" else None
+        )
 
         logger.info("Analysis crew successfully created.")
         return analysis_crew
