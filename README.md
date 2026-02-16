@@ -14,6 +14,8 @@ An AI-powered multi-agent system designed to analyze and optimize CVs. It uses *
 
 Collaborative AI deliberation to perfect your CV. Specialized AI agents (the "Board") review your CV from multiple perspectives, providing actionable feedback and a professionally rewritten version.
 
+![Demo](Demo.gif)
+
 ## 🏗️ Project Architecture
 
 The application follows a scalable, service-oriented architecture designed for maintainability and growth:
