@@ -50,15 +50,14 @@ def render_footer():
         unsafe_allow_html=True,
     )
 
-    # Buy Me a Coffee Button
-    bmc_button = """
-    <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="carlosan1708" data-color="#FFDD00" data-emoji="☕"  data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff" ></script>
-    """
-    st.components.v1.html(
-        f"""
-        <div style="display: flex; justify-content: center; transform: scale(0.8); transform-origin: center top;">
-            {bmc_button}
+    # Buy Me a Coffee Button - Direct Link (Mobile Friendly)
+    st.markdown(
+        """
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="https://www.buymeacoffee.com/carlosan1708" target="_blank" style="text-decoration: none;">
+                <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 40px; width: auto;">
+            </a>
         </div>
         """,
-        height=55,
+        unsafe_allow_html=True,
     )
