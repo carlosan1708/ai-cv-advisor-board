@@ -394,3 +394,15 @@
 2026-02-16 17:31:49,249 - ai-cv-advisor - INFO - PDF generated successfully.
 2026-02-16 17:32:03,114 - ai-cv-advisor - INFO - Generating PDF from Markdown...
 2026-02-16 17:32:03,205 - ai-cv-advisor - INFO - PDF generated successfully.
+2026-02-17 05:45:50,126 - ai-cv-advisor - INFO - Using system default models for Google.
+2026-02-17 05:46:24,272 - ai-cv-advisor - INFO - Fetching available models for Google...
+2026-02-17 05:46:24,948 - ai-cv-advisor - INFO - Successfully fetched 30 models for Google.
+2026-02-17 05:47:02,923 - ai-cv-advisor - INFO - Parsing CV file: Optimized_CV.pdf
+2026-02-17 05:47:12,886 - ai-cv-advisor - INFO - Attempting to scrape job from: https://www.linkedin.com/jobs/view/4292334898
+2026-02-17 05:47:13,493 - ai-cv-advisor - INFO - Successfully scraped 8758 characters from https://www.linkedin.com/jobs/view/4292334898
+2026-02-17 05:48:08,857 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisory-board/personas
+2026-02-17 05:48:08,870 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-17 05:48:16,100 - ai-cv-advisor - INFO - Loading personas from /Users/k/Documents/GitHub/ai-cv-advisory-board/personas
+2026-02-17 05:48:16,107 - ai-cv-advisor - INFO - Successfully loaded 12 personas.
+2026-02-17 05:48:26,694 - ai-cv-advisor - INFO - Creating analysis crew with 1 specialists...
+2026-02-17 05:48:26,706 - ai-cv-advisor - INFO - Analysis crew successfully created.

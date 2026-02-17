@@ -14,6 +14,11 @@ def render_upload_step():
         uploaded_file = st.file_uploader("Upload PDF or TXT", type=["pdf", "txt"])
 
         if uploaded_file:
+            # Check file size (e.g., limit to 5MB)
+            if uploaded_file.size > 5 * 1024 * 1024:
+                st.error("File is too large. Please upload a file smaller than 5MB.")
+                return
+
             if uploaded_file.name != st.session_state.cv_filename:
                 with st.spinner("Reading file..."):
                     try:

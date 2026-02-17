@@ -1,7 +1,6 @@
-import os
 from typing import List, Tuple
 
-from crewai import Agent, Crew, Process, Task
+from crewai import LLM, Agent, Crew, Process, Task
 
 from logger import logger
 from models import AppConfig, Persona
@@ -17,20 +16,17 @@ from prompts import (
 
 class AnalysisService:
     @staticmethod
-    def _configure_llm(config: AppConfig) -> str:
-        """Configures the LLM environment and returns the model string."""
+    def _configure_llm(config: AppConfig) -> LLM:
+        """Configures the LLM environment and returns the LLM instance."""
         if config.llm_provider == "Google":
-            os.environ["GEMINI_API_KEY"] = config.api_key
-            return f"gemini/{config.selected_model}"
+            return LLM(model=f"gemini/{config.selected_model}", api_key=config.api_key)
         else:
-            os.environ["OPENAI_API_KEY"] = config.api_key
-            if config.selected_model.startswith("openai/"):
-                return config.selected_model
-            return f"openai/{config.selected_model}"
+            # For OpenAI, CrewAI expects "gpt-4o" or "openai/gpt-4o"
+            return LLM(model=config.selected_model, api_key=config.api_key)
 
     @staticmethod
     def _create_specialist_agents(
-        personas: List[Persona], cv_content: str, job_description: str, model: str
+        personas: List[Persona], cv_content: str, job_description: str, model: LLM
     ) -> Tuple[List[Agent], List[Task]]:
         """Creates specialist agents and their analysis tasks."""
         agents = []
