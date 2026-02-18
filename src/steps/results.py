@@ -13,8 +13,6 @@ def _run_analysis():
     """Execute the CrewAI analysis process."""
     try:
         # Combine selected pre-defined personas and custom personas
-        # available_personas are already Persona objects from team step
-        # Make a copy to avoid modifying session state list in place if irrelevant
         selected_personas = list(st.session_state.get("board_agents", []))
 
         # Add custom personas (as Persona objects)
@@ -28,6 +26,52 @@ def _run_analysis():
                 )
             )
 
+        # Create containers for real-time updates
+        st.write("### 📊 Live Analysis Board")
+        tabs = st.tabs(["📋 Board Report", "🛠️ Minimal Changes", "📄 PDF Generated"])
+
+        with tabs[0]:
+            board_placeholder = st.empty()
+            board_placeholder.info("⏳ Waiting for Board Head synthesis...")
+        with tabs[1]:
+            changes_placeholder = st.empty()
+            changes_placeholder.info("⏳ Waiting for optimization suggestions...")
+        with tabs[2]:
+            final_cv_placeholder = st.empty()
+            final_cv_placeholder.info("⏳ Waiting for final CV reformatting...")
+
+        def on_task_complete(output):
+            """Callback for updating UI when a task completes."""
+            try:
+                # Determine which agent completed the task
+                role = output.agent
+                if hasattr(role, "role"):
+                    role = role.role
+                role = str(role)
+
+                result_text = output.raw
+
+                # Clean markdown
+                clean_text = CVService.clean_markdown_code_blocks(str(result_text))
+
+                if "Board Head" in role:
+                    board_placeholder.markdown(clean_text)
+                    st.toast("✅ Board Report Ready!", icon="📋")
+
+                elif "Optimizer" in role:
+                    changes_placeholder.markdown(clean_text)
+                    st.toast("✅ Minimal Changes Ready!", icon="🛠️")
+
+                elif "Reformatter" in role:
+                    final_cv_placeholder.markdown(clean_text)
+                    # We can't generate the download button here effectively inside a callback
+                    # because it might reset on rerun.
+                    # But we can show the text.
+                    st.toast("✅ Final CV Ready!", icon="📄")
+
+            except Exception as e:
+                logger.error(f"Error in task callback: {e}")
+
         with st.status("🚀 The Board is now in session...", expanded=True) as status:
             st.write("🔍 Assembling the team of specialists...")
             crew = AnalysisService.create_analysis_crew(
@@ -35,13 +79,14 @@ def _run_analysis():
                 cv_content=st.session_state.cv_content,
                 job_description=state_manager.job.description,
                 config=state_manager.config,
+                task_callback=on_task_complete,
             )
 
             st.write("🤖 Specialists are analyzing your CV against the job description...")
             # This is the blocking call where the main work happens
             result = crew.kickoff()
 
-            st.write("📝 Synthesizing final recommendations...")
+            st.write("📝 Analysis complete!")
             status.update(label="✅ Analysis Complete!", state="complete", expanded=False)
 
             state_manager.crew_result = result

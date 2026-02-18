@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import Any, Callable, List, Optional, Tuple
 
 from crewai import LLM, Agent, Crew, Process, Task
 
@@ -67,6 +67,7 @@ class AnalysisService:
         job_description: str,
         config: AppConfig,
         user_answers: str = "",
+        task_callback: Optional[Callable[[Any], None]] = None,
     ) -> Crew:
         """Creates and configures a CrewAI crew for CV analysis using domain models."""
 
@@ -99,6 +100,7 @@ class AnalysisService:
             expected_output="A comprehensive board recommendation report focusing on critique and strategic advice.",
             agent=board_head,
             context=specialist_tasks,  # Use specialist tasks as context
+            callback=task_callback,
         )
         agents.append(board_head)
         tasks.append(final_recommendation_task)
@@ -119,6 +121,7 @@ class AnalysisService:
             ),
             expected_output="A conversational list of high-impact advice and specific phrasing recommendations.",
             agent=optimizer_agent,
+            callback=task_callback,
         )
         agents.append(optimizer_agent)
         tasks.append(optimization_task)
@@ -138,6 +141,7 @@ class AnalysisService:
             expected_output="The complete, polished CV with all original sections and minimal improvements, formatted in clean Markdown.",
             agent=reformatter_agent,
             context=[optimization_task],
+            callback=task_callback,
         )
         agents.append(reformatter_agent)
         tasks.append(reformat_task)
