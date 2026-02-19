@@ -1,5 +1,7 @@
 # AI - CV Advisor Board 📄🤖
 
+# Live Demo: https://ai-cv-advisory-board.streamlit.app/
+
 An AI-powered multi-agent system designed to analyze and optimize CVs. It uses **CrewAI**, **Streamlit**, and **Google Gemini** (or OpenAI) to compare your CV against job descriptions and provide expert feedback from a "Board" of specialized agents.
 
 > [!IMPORTANT]
